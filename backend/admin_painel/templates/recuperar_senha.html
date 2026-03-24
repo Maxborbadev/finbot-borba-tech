@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Recuperar Senha • FinBot</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+body{
+font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;
+background:linear-gradient(135deg,#0f172a,#0b2a3a);
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+margin:0;
+padding:20px;
+color:white;
+}
+
+.card{
+background:rgba(255,255,255,0.06);
+padding:32px;
+border-radius:16px;
+width:100%;
+max-width:380px;
+backdrop-filter:blur(10px);
+box-shadow:0 10px 30px rgba(0,0,0,0.35);
+}
+
+.logo{
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
+margin-bottom:10px;
+font-size:18px;
+font-weight:600;
+}
+
+.logo img{
+width:32px;
+height:32px;
+}
+
+h2{
+text-align:center;
+margin-bottom:20px;
+font-size:22px;
+}
+
+p{
+font-size:14px;
+opacity:0.85;
+text-align:center;
+margin-bottom:10px;
+}
+
+input{
+width:100%;
+padding:14px;
+margin-top:10px;
+border-radius:10px;
+border:none;
+outline:none;
+font-size:15px;
+}
+
+button{
+margin-top:20px;
+width:100%;
+padding:14px;
+border:none;
+border-radius:10px;
+background:linear-gradient(90deg,#22c55e,#4f46e5);
+color:white;
+font-weight:bold;
+font-size:15px;
+cursor:pointer;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
+}
+
+button:disabled{
+opacity:0.6;
+cursor:not-allowed;
+}
+
+/* =========================
+   LOADER
+========================= */
+
+.loader{
+width:16px;
+height:16px;
+border:2px solid rgba(255,255,255,0.4);
+border-top:2px solid white;
+border-radius:50%;
+animation:spin 0.8s linear infinite;
+display:none;
+}
+
+button.loading .loader{
+display:inline-block;
+}
+
+@keyframes spin{
+0%{transform:rotate(0deg);}
+100%{transform:rotate(360deg);}
+}
+
+/* =========================
+   TOAST
+========================= */
+
+.toast{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#3b82f6;
+color:white;
+padding:14px 20px;
+border-radius:10px;
+box-shadow:0 6px 20px rgba(0,0,0,0.25);
+opacity:0;
+transform:translateY(20px);
+transition:all .3s ease;
+font-size:14px;
+z-index:1000;
+}
+
+.toast.show{
+opacity:1;
+transform:translateY(0);
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width:420px){
+
+.card{
+padding:26px;
+}
+
+h2{
+font-size:20px;
+}
+
+input{
+padding:13px;
+font-size:14px;
+}
+
+button{
+padding:13px;
+font-size:14px;
+}
+
+.toast{
+left:20px;
+right:20px;
+text-align:center;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<div class="logo">
+<img src="{{ url_for('static', filename='ico32.png') }}">
+<span>FinBot</span>
+</div>
+
+<h2>Recuperar senha</h2>
+
+<p>Digite seu email para receber o link de recuperação</p>
+
+<form method="POST" action="/enviar-recuperacao">
+
+<input
+type="email"
+name="email"
+placeholder="Seu email"
+required
+>
+
+<button type="submit" id="btnEnviar">
+
+<span id="textoBotao">
+Enviar link de recuperação
+</span>
+
+<span id="loader" class="loader"></span>
+
+</button>
+
+</form>
+
+</div>
+
+
+<!-- TOAST -->
+
+<div id="toast" class="toast">
+Link para alteração de senha enviado para seu email.
+</div>
+
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function(){
+
+const form = document.querySelector("form");
+
+if(form){
+form.addEventListener("submit", function(){
+
+const botao = document.getElementById("btnEnviar");
+const texto = document.getElementById("textoBotao");
+
+botao.classList.add("loading");
+texto.textContent = "Enviando...";
+botao.disabled = true;
+
+});
+}
+
+});
+
+</script>
+
+
+{% if enviado %}
+<script>
+
+document.addEventListener("DOMContentLoaded", function(){
+
+const toast = document.getElementById("toast");
+
+setTimeout(function(){
+toast.classList.add("show");
+},500);
+
+setTimeout(function(){
+window.location.href = "{{ url_for('auth.login') }}";
+},2500);
+
+});
+
+</script>
+{% endif %}
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Enviar aviso</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='admin_aviso.css') }}"
+    />
+  </head>
+
+  <body>
+    <h2>Enviar aviso</h2>
+
+    <div class="aviso-container">
+      <form method="POST" action="/admin/enviar_aviso">
+        <label>Enviar para</label>
+
+        <select name="tipo">
+          <option value="todos">Todos usuários</option>
+
+          <option value="premium">Apenas Premium</option>
+
+          <option value="free">Apenas Free</option>
+
+          <option value="expirando">Premium expirando</option>
+        </select>
+
+        <textarea
+          name="mensagem"
+          placeholder="Digite a mensagem..."
+          required
+        ></textarea>
+
+        <button type="submit">Enviar aviso</button>
+      </form>
+    </div>
+  </body>
+</html>

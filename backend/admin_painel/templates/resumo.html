@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resumo Financeiro</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='resumo.css') }}">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+<h1>📊 Resumo Financeiro</h1>
+</header>
+
+<!-- CARDS PRINCIPAIS -->
+<div class="grid">
+
+<div class="card">
+<h3>💳 Saldo atual</h3>
+<p class="valor">R$ {{ saldo|dinheiro }}</p>
+</div>
+
+<div class="card">
+<h3>📅 Gastos hoje</h3>
+<p class="valor vermelho">R$ {{ gastos_hoje|dinheiro }}</p>
+</div>
+
+<div class="card">
+<h3>📊 Gastos na semana</h3>
+<p class="valor vermelho">R$ {{ gastos_semana|dinheiro }}</p>
+</div>
+
+<div class="card">
+<h3>📆 Gastos no mês</h3>
+<p class="valor vermelho">R$ {{ gastos_mes|dinheiro }}</p>
+</div>
+
+<div class="card">
+<h3>💰 Entradas no mês</h3>
+<p class="valor verde">R$ {{ rendas_mes|dinheiro }}</p>
+</div>
+
+{% if maior_gasto %}
+<div class="card">
+<h3>🔥 Maior gasto do mês</h3>
+<p>{{ maior_gasto[0] }}</p>
+<p class="valor vermelho">R$ {{ maior_gasto[1]|dinheiro }}</p>
+</div>
+{% endif %}
+
+</div>
+
+
+<!-- SEÇÃO EXTRA -->
+<div class="extra">
+
+<div class="box">
+
+<h2>📈 Situação financeira</h2>
+
+{% if gastos_mes > rendas_mes %}
+
+<p class="alert vermelho">
+⚠️ Seus gastos já ultrapassaram suas entradas este mês.
+</p>
+
+{% elif gastos_mes == 0 %}
+
+<p class="alert">
+📊 Nenhum gasto registrado neste mês ainda.
+</p>
+
+{% else %}
+
+<p class="alert verde">
+🟢 Seus gastos estão dentro do controle este mês.
+</p>
+
+{% endif %}
+
+</div>
+
+
+<div class="box">
+
+<h2>📊 Uso do orçamento</h2>
+
+{% if rendas_mes > 0 %}
+{% set percentual = ((gastos_mes / rendas_mes) * 100) | round(0) %}
+{% else %}
+{% set percentual = 0 %}
+{% endif %}
+
+{% set largura = percentual if percentual <= 100 else 100 %}
+
+{% if percentual <= 60 %}
+{% set cor = "verde" %}
+{% elif percentual <= 90 %}
+{% set cor = "amarelo" %}
+{% else %}
+{% set cor = "vermelho" %}
+{% endif %}
+
+<div class="barra" aria-label="Uso do orçamento">
+
+<div class="progresso {{ cor }}" style="width: {{ largura }}%;">
+
+<span class="percent">{{ percentual }}%</span>
+
+</div>
+
+</div>
+
+<p class="texto-barra">do orçamento utilizado</p>
+
+</div>
+
+
+<div class="box">
+
+<h2>💡 Dica financeira</h2>
+
+{% if maior_gasto %}
+
+<p>
+Seu maior gasto este mês foi com
+<strong>{{ maior_gasto[0] }}</strong>.
+Controlar esse tipo de gasto pode ajudar a economizar mais.
+</p>
+
+{% else %}
+
+<p>
+Comece registrando seus gastos para receber análises mais detalhadas.
+</p>
+
+{% endif %}
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- MENU INFERIOR -->
+<nav class="menu">
+
+<a href="/usuario_painel">
+🏠
+<span>Início</span>
+</a>
+
+<a href="/cartoes">
+💳
+<span>Cartões</span>
+</a>
+
+<a class="active" href="/resumo">
+📊
+<span>Resumo</span>
+</a>
+
+<a href="/logout">
+🚪
+<span>Sair</span>
+</a>
+
+</nav>
+
+</body>
+</html>

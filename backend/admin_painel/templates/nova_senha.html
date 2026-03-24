@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Nova senha • FinBot</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{
+box-sizing:border-box;
+}
+
+body{
+font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto;
+background:linear-gradient(135deg,#0f172a,#0b2a3a);
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+margin:0;
+padding:20px;
+color:white;
+}
+
+.card{
+background:rgba(255,255,255,0.06);
+padding:32px;
+border-radius:16px;
+width:100%;
+max-width:380px;
+backdrop-filter:blur(10px);
+box-shadow:0 10px 30px rgba(0,0,0,0.35);
+}
+
+h2{
+text-align:center;
+margin-bottom:20px;
+font-size:22px;
+}
+
+p{
+font-size:14px;
+opacity:0.85;
+text-align:center;
+margin-bottom:10px;
+}
+
+.input-group{
+position:relative;
+}
+
+input{
+width:100%;
+padding:14px;
+margin-top:10px;
+border-radius:10px;
+border:none;
+outline:none;
+font-size:15px;
+}
+
+.toggle{
+position:absolute;
+right:12px;
+top:50%;
+transform:translateY(-50%);
+cursor:pointer;
+font-size:16px;
+color:#94a3b8;
+}
+
+button{
+margin-top:20px;
+width:100%;
+padding:14px;
+border:none;
+border-radius:10px;
+background:linear-gradient(90deg,#22c55e,#4f46e5);
+color:white;
+font-weight:bold;
+font-size:15px;
+cursor:pointer;
+}
+
+button:disabled{
+opacity:0.5;
+cursor:not-allowed;
+}
+
+#forca{
+margin-top:6px;
+font-size:13px;
+}
+
+.fraca{color:#ef4444}
+.media{color:#f59e0b}
+.forte{color:#10b981}
+
+
+/* =========================
+   TOAST
+========================= */
+
+.toast{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#3b82f6;
+color:white;
+padding:14px 20px;
+border-radius:10px;
+box-shadow:0 6px 20px rgba(0,0,0,0.25);
+opacity:0;
+transform:translateY(20px);
+transition:all .3s ease;
+font-size:14px;
+}
+
+.toast.show{
+opacity:1;
+transform:translateY(0);
+}
+.forca-container{
+width:100%;
+height:6px;
+background:#1e293b;
+border-radius:6px;
+margin-top:8px;
+overflow:hidden;
+}
+
+#forca-barra{
+height:100%;
+width:0%;
+transition:all .3s ease;
+}
+
+#forca-texto{
+margin-top:6px;
+font-size:13px;
+}
+
+
+/* =========================
+   MOBILE EXTRA PEQUENO
+========================= */
+
+@media (max-width:420px){
+
+.card{
+padding:26px;
+}
+
+h2{
+font-size:20px;
+}
+
+input{
+padding:13px;
+font-size:14px;
+}
+
+button{
+padding:13px;
+font-size:14px;
+}
+
+.toast{
+left:20px;
+right:20px;
+text-align:center;
+}
+
+}
+
+.logo{
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
+margin-bottom:10px;
+font-size:18px;
+font-weight:600;
+}
+
+.logo img{
+width:32px;
+height:32px;
+}
+
+
+/* =========================
+   TELAS GRANDES
+========================= */
+
+@media (min-width:900px){
+
+.card{
+max-width:420px;
+padding:40px;
+}
+
+}
+
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+<div class="logo">
+<img src="{{ url_for('static', filename='ico32.png') }}" alt="FinBot">
+<span>FinBot</span>
+</div>
+
+<h2>Definir nova senha</h2>
+
+{% if erro %}
+<p style="color:#ef4444;text-align:center;margin-bottom:10px;">
+{{ erro }}
+</p>
+{% endif %}
+
+<form method="POST" action="/salvar-nova-senha">
+
+<input type="hidden" name="token" value="{{ token }}">
+
+<div class="input-group">
+
+<input
+type="password"
+name="senha"
+id="senha"
+placeholder="Nova senha"
+required
+oninput="verificarSenha(); verificarConfirmacao();"
+>
+
+<span class="toggle" onclick="toggleSenha('senha')">👁</span>
+
+</div>
+
+<div class="forca-container">
+<div id="forca-barra"></div>
+</div>
+
+<div id="forca-texto"></div>
+
+<div class="input-group">
+
+<input
+type="password"
+name="confirmar"
+id="confirmar"
+placeholder="Confirmar senha"
+required
+oninput="verificarConfirmacao()"
+>
+
+<span class="toggle" onclick="toggleSenha('confirmar')">👁</span>
+
+</div>
+
+<div id="erroSenha" style="font-size:13px;margin-top:6px;"></div>
+
+<button type="submit" id="btnSalvar">
+Salvar nova senha
+</button>
+
+</form>
+
+</div>
+
+<div id="toast" class="toast">
+Senha alterada com sucesso!
+</div>
+
+<script>
+
+function toggleSenha(id){
+const input = document.getElementById(id);
+
+if(input.type === "password"){
+input.type = "text";
+}else{
+input.type = "password";
+}
+}
+
+function verificarSenha(){
+
+const senha = document.getElementById("senha").value;
+
+const barra = document.getElementById("forca-barra");
+const texto = document.getElementById("forca-texto");
+
+let score = 0;
+
+if(senha.length >= 6) score++;
+if(/[A-Z]/.test(senha)) score++;
+if(/[0-9]/.test(senha)) score++;
+if(/[^A-Za-z0-9]/.test(senha)) score++;
+
+if(score <= 1){
+
+barra.style.width = "25%";
+barra.style.background = "#ef4444";
+
+texto.textContent = "Senha fraca";
+texto.style.color = "#ef4444";
+
+}
+else if(score <= 3){
+
+barra.style.width = "65%";
+barra.style.background = "#f59e0b";
+
+texto.textContent = "Senha média";
+texto.style.color = "#f59e0b";
+
+}
+else{
+
+barra.style.width = "100%";
+barra.style.background = "#10b981";
+
+texto.textContent = "Senha forte";
+texto.style.color = "#10b981";
+
+}
+
+}
+
+function verificarConfirmacao(){
+
+const senha = document.getElementById("senha").value;
+const confirmar = document.getElementById("confirmar").value;
+const erro = document.getElementById("erroSenha");
+const botao = document.getElementById("btnSalvar");
+
+if(confirmar.length === 0){
+erro.textContent = "";
+botao.disabled = false;
+return;
+}
+
+if(senha !== confirmar){
+erro.textContent = "As senhas não coincidem";
+erro.style.color = "#ef4444";
+botao.disabled = true;
+}else{
+erro.textContent = "Senhas iguais";
+erro.style.color = "#10b981";
+botao.disabled = false;
+}
+
+}
+
+function mostrarToast(){
+
+const toast = document.getElementById("toast");
+
+toast.classList.add("show");
+
+setTimeout(()=>{
+toast.classList.remove("show");
+window.location.href="/";
+},3000);
+
+}
+
+</script>
+
+{% if sucesso %}
+<script>
+mostrarToast();
+</script>
+{% endif %}
+
+</body>
+</html>

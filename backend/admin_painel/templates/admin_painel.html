@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>FinBot • Painel Administrativo</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="{{ url_for('static', filename='ico16.png') }}"
+    />
+
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="{{ url_for('static', filename='ico32.png') }}"
+    />
+
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="{{ url_for('static', filename='ico180.png') }}"
+    />
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='admin_painel.css') }}"
+    />
+  </head>
+
+  <body>
+    <div class="dashboard">
+      <!-- SIDEBAR -->
+
+      <aside class="sidebar">
+        <div class="logo">⭐ FinBot</div>
+
+        <nav class="menu">
+          <a class="active">📊 Dashboard</a>
+          <a href="/admin/usuarios">👥 Usuários</a>
+          <a>⭐ Planos</a>
+          <a>💳 Assinaturas</a>
+          <a>📈 Financeiro</a>
+          <a>⚙️ Configurações</a>
+        </nav>
+
+        <a class="logout" href="/logout"> 🚪 Sair </a>
+      </aside>
+
+      <!-- MAIN -->
+
+      <main class="main">
+        <!-- HEADER -->
+
+        <header class="header">
+          <div class="header-left">
+            <button class="menu-toggle">☰</button>
+
+            <h1>Painel Administrativo</h1>
+          </div>
+
+          <div class="header-right">
+            <span class="admin">Administrador</span>
+          </div>
+        </header>
+
+        <!-- ESTATÍSTICAS -->
+
+        <section class="stats">
+          <div class="stat-card">
+            <div class="stat-title">👥 Usuários</div>
+            <div class="stat-value">{{ total }}</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-title">⭐ Premium</div>
+            <div class="stat-value">{{ premium }}</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-title">🟢 Ativos hoje</div>
+            <div class="stat-value">{{ ativos_hoje }}</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-title">🆕 Novos hoje</div>
+            <div class="stat-value">{{ novos_hoje }}</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-title">⚠️ Expiram em 7 dias</div>
+            <div class="stat-value">{{ expiram }}</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-title">💰 Receita estimada</div>
+            <div class="stat-value">R$ {{ receita }}</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-title">📉 Gastos</div>
+            <div class="stat-value">R$ {{ gastos|dinheiro }}</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-title">📈 Rendas</div>
+            <div class="stat-value">R$ {{ rendas|dinheiro }}</div>
+          </div>
+
+          <div
+            class="stat-card saldo {% if saldo < 0 %}negativo{% else %}positivo{% endif %}"
+          >
+            <div class="stat-title">⚖️ Saldo</div>
+            <div class="stat-value">R$ {{ saldo|dinheiro }}</div>
+          </div>
+        </section>
+
+        <section class="admin-tools">
+          <a href="/admin/aviso">
+            <button class="tool">📢 Enviar aviso</button>
+          </a>
+
+          <button class="tool">🎁 Dar 30 dias premium</button>
+
+          <button class="tool">📊 Relatórios</button>
+        </section>
+
+        <!-- LISTA DE USUÁRIOS -->
+        <section class="users">
+          <div class="section-header">
+            <h2>Usuários cadastrados</h2>
+
+            <input
+              type="text"
+              id="buscarUsuario"
+              placeholder="🔎 Buscar usuário..."
+              class="user-search"
+            />
+          </div>
+
+          <div class="user-list">
+            {% for u in usuarios %}
+
+            <div
+              class="user-item"
+              data-nome="{{ u.nome|lower }}"
+              data-whatsapp="{{ u.whatsapp_id|lower }}"
+            >
+              <!-- CONTEÚDO DO USUÁRIO -->
+
+              <div class="user-main">
+                <div class="user-name">{{ u.nome }}</div>
+
+                <div class="user-meta">
+                  <span>📱 {{ u.whatsapp_id or '—' }}</span>
+
+                  {% if u.status == 'bloqueado' %}
+                  <span class="badge bloqueado">Bloqueado</span>
+                  {% else %}
+                  <span class="badge ativo">Ativo</span>
+                  {% endif %} {% if u.plano == 'premium' %}
+
+                  <span class="badge premium">Premium</span>
+
+                  {% if u.expira_formatado %}
+                  <span class="expire">
+                    expira em {{ u.expira_formatado }} • {{ u.dias_restantes }}
+                    dias
+                  </span>
+                  {% endif %} {% else %}
+                  <span class="badge free">Free</span>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- AÇÕES -->
+
+              <div class="user-actions">
+                {% if u.status == 'bloqueado' %}
+
+                <a href="/admin/usuario/{{ u.uuid }}">
+                  <button class="btn ver">👁 Ver</button>
+                </a>
+
+                <a href="/desbloquear/{{ u.uuid }}">
+                  <button class="btn desbloquear">🔓 Desbloquear</button>
+                </a>
+
+                {% else %} {% if u.plano == 'premium' %}
+
+                <a href="/remover_premium/{{ u.uuid }}">
+                  <button class="btn remover">⛔ Remover</button>
+                </a>
+
+                {% else %}
+
+                <a href="/ativar_premium/{{ u.uuid }}">
+                  <button class="btn premium">⭐ Premium</button>
+                </a>
+
+                {% endif %}
+
+                <a href="/bloquear/{{ u.uuid }}">
+                  <button class="btn bloquear">🔒 Bloquear</button>
+                </a>
+
+                {% endif %}
+
+                <a
+                  href="/apagar_usuario/{{ u.uuid }}"
+                  onclick="
+                    return confirm('Deseja realmente apagar este usuário?');
+                  "
+                >
+                  <button class="btn apagar">🗑️ Apagar</button>
+                </a>
+              </div>
+            </div>
+
+            {% endfor %}
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='admin_painel.js') }}"></script>
+  </body>
+</html>

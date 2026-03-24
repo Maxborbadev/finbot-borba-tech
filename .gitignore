@@ -1,0 +1,92 @@
+# ======================
+# Python
+# ======================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# ======================
+# Virtual env
+# ======================
+venv/
+.venv/
+
+# ======================
+# Environment variables
+# ======================
+.env
+.env.*
+.env.local
+.env.development
+.env.production
+
+# ======================
+# Node
+# ======================
+node_modules/
+whatsapp_bot/node_modules/
+
+# ======================
+# WhatsApp auth / sessions
+# ======================
+whatsapp_bot/auth/
+whatsapp_bot/.wwebjs_auth/
+whatsapp_bot/.wwebjs_cache/
+*.session
+
+# ======================
+# Database
+# ======================
+*.db
+*.db-shm
+*.db-wal
+
+# ======================
+# Uploads / temp
+# ======================
+uploads/
+temp/
+
+# ======================
+# Build
+# ======================
+dist/
+build/
+
+# ======================
+# Logs
+# ======================
+*.log
+
+# ======================
+# Keys & certs
+# ======================
+*.pem
+*.key
+*.crt
+*.p12
+
+# ======================
+# Cache
+# ======================
+.cache/
+*.cache
+
+# ======================
+# VS Code
+# ======================
+.vscode/
+
+
+# TEMP do QR PIX (Mercado Pago)
+whatsapp_bot/temp/
+
+# Banco específico (garantia extra)
+financas.db
+
+# ======================
+# System
+# ======================
+.DS_Store
+Thumbs.db

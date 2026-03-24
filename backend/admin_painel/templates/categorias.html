@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+  <title>Categorias</title>
+</head>
+<body>
+
+<h1>📂 Minhas Categorias</h1>
+
+<form method="post" action="/categoria/criar">
+  <input name="nome" placeholder="Nova categoria" required>
+  <button type="submit">Adicionar</button>
+</form>
+
+<ul>
+  {% for c in categorias %}
+    <li>
+      {{ c[1] }}
+      <a href="/categoria/apagar/{{ c[0] }}">🗑️</a>
+    </li>
+  {% endfor %}
+</ul>
+
+<a href="/usuario_painel">Voltar</a>
+
+</body>
+</html>

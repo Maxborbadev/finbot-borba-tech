@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+<meta charset="UTF-8">
+<title>FinBot • Cartões</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="icon" href="{{ url_for('static', filename='ico32.png') }}">
+
+<link
+href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+rel="stylesheet"
+/>
+
+<link
+href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap"
+rel="stylesheet"
+/>
+
+<link rel="stylesheet"
+href="{{ url_for('static', filename='usuario_cartao.css') }}">
+</head>
+
+  <body>
+    <header class="topo">
+      <div class="usuario-info">
+        <h1>{{ usuario.nome }}</h1>
+        <p>Gastos no cartão</p>
+      </div>
+
+      <div class="total-cartao">
+        <span>Total</span>
+        <h2>R$ {{ total_cartao_atual|dinheiro }}</h2>
+      </div>
+    </header>
+
+    <main class="container">
+      <h2 class="titulo-secao">💳 Compras no cartão</h2>
+
+      <div id="lista-gastos">
+        {% for g in gastos_cartao %}
+
+        <form
+          method="post"
+          action="/gasto-cartao/editar/{{ g.id }}"
+          class="cartao-card"
+          data-gasto-id="{{ g.id }}"
+        >
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+          <div class="card-top">
+            <input
+              type="text"
+              name="descricao"
+              class="descricao-input"
+              value="{{ g.descricao }}"
+              placeholder="Descrição da compra"
+            />
+          </div>
+
+          <div class="card-info">
+            <div class="info-item">
+              <label>Cartão</label>
+
+              <select name="cartao_id" class="select-cartao">
+                {% for cartao in cartoes %}
+
+                <option value="{{ cartao.id }}"
+                {% if cartao.id == g.cartao_id %}selected{% endif %}>
+                {{ cartao.nome }}
+                </option>
+
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="info-item valor">
+              <span>Valor</span>
+              <strong>{{ g.valor|dinheiro }}</strong>
+            </div>
+          </div>
+
+          {% if g.parcelado %}
+
+          <div class="parcelas">
+            <span>
+              💳 {{ g.qtd_parcelas }}x de {{ g.valor_parcela|dinheiro }}
+            </span>
+
+            <span> ⏳ Restam {{ g.parcelas_restantes }} parcelas </span>
+          </div>
+
+          {% endif %}
+
+          <div class="acoes">
+            <button type="submit" class="btn btn-salvar">Salvar</button>
+
+            <button type="button" class="btn btn-excluir" data-id="{{ g.id }}">
+              Excluir
+            </button>
+
+            {% if not g.quitado %}
+
+            <button
+              type="submit"
+              formaction="/gasto-cartao/quitar/{{ g.id }}"
+              class="btn btn-quitar"
+              onclick="return confirm('Marcar esta compra como quitada?');"
+            >
+              Compra quitada
+            </button>
+
+            {% else %}
+
+            <span class="status-quitado"> ✔ Compra quitada </span>
+
+            {% endif %}
+          </div>
+        </form>
+
+        {% endfor %} {% if not gastos_cartao %}
+
+        <p class="sem-gastos">📭 Nenhum gasto no cartão.</p>
+
+        {% endif %}
+      </div>
+
+      <div id="paginacao" class="paginacao"></div>
+    </main>
+
+    <nav class="menu">
+      <a href="/usuario_painel">
+        🏠
+        <span>Início</span>
+      </a>
+
+      <a class="active" href="/cartoes">
+        💳
+        <span>Cartões</span>
+      </a>
+
+      <a href="/resumo">
+        📊
+        <span>Resumo</span>
+      </a>
+
+      <a href="/logout">
+        🚪
+        <span>Sair</span>
+      </a>
+    </nav>
+    <div id="toast" class="toast"></div>
+    <div id="modalConfirm" class="modal-confirm">
+      <div class="modal-box">
+        <h3>Excluir gasto</h3>
+        <p>Tem certeza que deseja excluir este gasto do cartão?</p>
+
+        <div class="modal-acoes">
+          <button id="cancelarExcluir" class="btn-modal cancelar">
+            Cancelar
+          </button>
+          <button id="confirmarExcluir" class="btn-modal excluir">
+            Excluir
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script
+      src="{{ url_for('static', filename='usuario_cartao.js') }}"
+      defer
+    ></script>
+  </body>
+</html>

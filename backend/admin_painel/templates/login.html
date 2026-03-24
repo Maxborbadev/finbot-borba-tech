@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+
+    <title>FinBot Admin • Painel Administrativo</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <meta
+      name="description"
+      content="Acesso restrito ao painel administrativo do FinBot. Sistema seguro de gestão financeira desenvolvido pela BorbaTech."
+    />
+
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="googlebot" content="noindex, nofollow" />
+
+    <meta name="author" content="BorbaTech" />
+    <meta name="application-name" content="FinBot Admin" />
+
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="color-scheme" content="light dark" />
+
+    <link rel="canonical" href="https://finbotbyborbatech.com/" />
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      http-equiv="Referrer-Policy"
+      content="strict-origin-when-cross-origin"
+    />
+
+    <!-- FAVICON -->
+
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="{{ url_for('static', filename='ico16.png') }}"
+    />
+
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="{{ url_for('static', filename='ico32.png') }}"
+    />
+
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="{{ url_for('static', filename='ico180.png') }}"
+    />
+
+    <!-- CSS -->
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='login_painel.css') }}"
+    />
+  </head>
+
+  <body>
+    <div class="background">
+      <div class="blob blob1"></div>
+      <div class="blob blob2"></div>
+      <div class="blob blob3"></div>
+    </div>
+
+    <div class="card">
+      <div class="logo">FinBot</div>
+
+      <div class="subtitle">Painel Administrativo</div>
+
+      <!-- ERRO LOGIN -->
+
+      {% if erro %}
+      <div class="login-erro">{{ erro }}</div>
+      {% endif %}
+
+      <form method="POST" action="{{ url_for('auth.login') }}">
+        <!-- CSRF TOKEN -->
+
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+        <div class="input-group">
+          <label>Email</label>
+
+          <input
+            type="email"
+            name="email"
+            placeholder="Seu email"
+            required
+            autofocus
+          />
+        </div>
+
+        <div class="input-group">
+          <label>Senha</label>
+
+          <input
+            id="senha"
+            type="password"
+            name="senha"
+            placeholder="Digite sua senha"
+            required
+          />
+
+          <span class="toggle" onclick="toggleSenha()">👁</span>
+        </div>
+
+        <button type="submit">Entrar</button>
+      </form>
+
+      <div class="footer">
+        <div class="footer-links">
+          <a href="/esqueci-senha">Esqueceu sua senha?</a>
+        </div>
+
+        <div class="footer-copy">
+          © 2026 • FinBot System • <strong>BorbaTech</strong>
+        </div>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='login.js') }}"></script>
+  </body>
+</html>

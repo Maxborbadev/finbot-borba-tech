@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>FinBot • Minha Conta</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='usuario_painel.css') }}"
+    />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+
+  <body>
+    <header>
+      <h1>Olá, {{ usuario.nome }}</h1>
+      <span>Saldo disponível</span>
+
+      <div class="saldo">R$ {{ usuario.saldo|dinheiro }}</div>
+    </header>
+
+    <section class="cards">
+      <div class="card gasto">
+        <span>📉 Gastos do mês</span>
+        <h3 class="negativo">R$ {{ resumo.total_gastos|dinheiro }}</h3>
+      </div>
+
+      <div class="card cartao-slider gasto">
+        <div class="slides">
+          <div class="slide">
+            <span>💳 Gastos cartão ({{fatura_label_atual}})</span>
+            <h3 class="negativo valor-cartao"> R$ {{ total_cartao_atual|dinheiro }}</h3>
+          </div>
+
+          <div class="slide">
+            <span>ㅤ💳 Gastos cartão ({{fatura_label_proximo}})</span>
+            <h3 class="negativo">R$ {{ total_cartao_proximo|dinheiro }}</h3>
+          </div>
+        </div>
+
+        <div class="dots">
+          <span class="dot ativo"></span>
+          <span class="dot"></span>
+        </div>
+      </div>
+
+      <div class="card renda">
+        <span>📈 Rendas</span>
+        <h3 class="positivo">R$ {{ resumo.total_rendas|dinheiro }}</h3>
+      </div>
+
+      <div class="card cofrinho">
+        <span>🐷 Cofrinho</span>
+        <h3 class="positivo">R$ {{ resumo.total_cofrinho|dinheiro }}</h3>
+      </div>
+
+      <div class="card gasto">
+        <span>💸 Contas fixas</span>
+        <h3 class="negativo">R$ {{ total_fixas|dinheiro }}</h3>
+      </div>
+
+      <div class="card premium">
+        <span>⭐ Plano</span>
+        <h3>{{ usuario.plano }}</h3>
+
+        {% if usuario.plano == "premium" %}
+        <small>expira em {{ usuario.dias_restantes }} dias</small>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="box">
+      <h2>📈 Evolução</h2>
+
+      <div class="grafico">
+        <canvas id="graficoLinha"></canvas>
+      </div>
+    </section>
+
+    <section class="box">
+      <h2>🥧 Gastos por categoria</h2>
+
+      <div class="grafico">
+        <canvas id="graficoPizza"></canvas>
+      </div>
+    </section>
+
+    <section class="box">
+      <h2>📌 Contas Fixas</h2>
+
+      <div class="lista">
+        {% for c in contas_fixas %}
+
+        <div class="conta">
+          <div class="conta-info">
+            <strong>{{ c.descricao }}</strong>
+
+            <small>
+              {{ c.periodicidade }} • Dia {{ "%02d"|format(c.dia_vencimento) }}
+            </small>
+          </div>
+
+          <div class="actions">
+            <span class="negativo"> R$ {{ c.valor|dinheiro }} </span>
+
+            <a
+              href="{{ url_for('usuario.remover_conta_fixa_rota', conta_id=c.id) }}"
+              class="delete"
+              onclick="return confirm('Apagar conta fixa?');"
+            >
+              Excluir
+            </a>
+          </div>
+        </div>
+
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="box">
+      <div class="box-header">
+        <h2 class="toggle-gastos">
+          💸 Últimos gastos <span class="seta">▼</span>
+        </h2>
+      </div>
+
+      <div class="lista lista-gastos fechado">
+        {% if resumo.gastos %} {% for g in resumo.gastos %}
+
+        <form
+          class="item-form ajax-form"
+          method="post"
+          action="/gasto/editar/{{ g[0] }}"
+        >
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+          <div class="item">
+            <div class="info">
+              <input
+                type="text"
+                name="descricao"
+                value="{{ g[1] }}"
+                class="input-desc"
+                required
+              />
+
+              <span>{{ g[3] }} • {{ g[4] }}</span>
+            </div>
+
+            <div class="valor-wrapper">
+              <span class="moeda">R$</span>
+
+              <input
+                type="number"
+                step="0.01"
+                inputmode="decimal"
+                name="valor"
+                class="valor-input negativo"
+                value="{{ g[2] }}"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="save">💾 Salvar</button>
+
+            <a
+              href="/gasto/apagar/{{ g[0] }}"
+              class="delete"
+              onclick="return confirm('Apagar gasto?');"
+            >
+              Excluir
+            </a>
+          </div>
+        </form>
+
+        {% endfor %} {% else %}
+
+        <p>📭 Nenhum gasto cadastrado.</p>
+
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="box">
+      <div class="box-header">
+        <h2 class="toggle-rendas">💰 Rendas <span class="seta">▼</span></h2>
+      </div>
+
+      <div class="lista lista-rendas fechado">
+        {% if resumo.rendas %} {% for r in resumo.rendas %}
+
+        <form
+          class="item-form ajax-form"
+          method="post"
+          action="/renda/editar/{{ r[0] }}"
+        >
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+          <div class="item">
+            <div class="info">
+              <input
+                type="text"
+                name="descricao"
+                value="{{ r[1] }}"
+                class="input-desc"
+                required
+              />
+
+              <span>{{ r[3] }}</span>
+            </div>
+
+            <div class="valor-wrapper">
+              <span class="moeda">R$</span>
+
+              <input
+                type="number"
+                step="0.01"
+                inputmode="decimal"
+                name="valor"
+                class="valor-input positivo"
+                value="{{ r[2] }}"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="submit" class="save">💾 Salvar</button>
+
+            <a
+              href="/renda/apagar/{{ r[0] }}"
+              class="delete"
+              onclick="return confirm('Apagar renda?');"
+            >
+              Excluir
+            </a>
+          </div>
+        </form>
+
+        {% endfor %} {% else %}
+
+        <p>📭 Nenhuma renda cadastrada.</p>
+
+        {% endif %}
+      </div>
+    </section>
+
+    <nav>
+      <a class="active" href="/usuario_painel">🏠<span>Início</span></a>
+
+      <a href="/cartoes">💳<span>Cartões</span></a>
+
+      <a href="/resumo">📊<span>Resumo</span></a>
+
+      <a href="/logout">🚪<span>Sair</span></a>
+    </nav>
+
+    <script src="{{ url_for('static', filename='usuario_painel.js') }}"></script>
+  </body>
+</html>

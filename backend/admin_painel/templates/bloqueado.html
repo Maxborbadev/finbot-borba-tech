@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FinBot Premium</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(135deg,#0f172a,#1e293b);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    padding:20px;
+}
+
+.card{
+    background:#111827;
+    padding:40px;
+    border-radius:12px;
+    width:100%;
+    max-width:420px;
+    text-align:center;
+    box-shadow:0 15px 40px rgba(0,0,0,0.6);
+}
+
+.titulo{
+    font-size:28px;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+.sub{
+    color:#9ca3af;
+    margin-bottom:25px;
+}
+
+.linha{
+    height:1px;
+    background:#374151;
+    margin:20px 0;
+}
+
+.plano{
+    background:#1f2937;
+    padding:15px;
+    border-radius:8px;
+    margin-bottom:20px;
+}
+
+.plano strong{
+    color:#6cff6c;
+}
+
+.botao{
+    display:block;
+    background:#22c55e;
+    color:white;
+    text-decoration:none;
+    padding:14px;
+    border-radius:8px;
+    font-weight:bold;
+    margin-top:20px;
+    font-size:16px;
+}
+
+.botao:hover{
+    background:#16a34a;
+}
+
+.dica{
+    margin-top:20px;
+    font-size:13px;
+    color:#9ca3af;
+}
+
+/* RESPONSIVO */
+
+@media (max-width:480px){
+
+.card{
+    padding:30px 20px;
+}
+
+.titulo{
+    font-size:24px;
+}
+
+.botao{
+    font-size:17px;
+    padding:16px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<div class="titulo">🔒 FinBot Premium</div>
+
+<div class="sub">
+Olá <strong>{{ usuario.nome }}</strong>
+</div>
+
+<div class="linha"></div>
+
+<div class="plano">
+Seu plano atual: <strong>FREE</strong>
+</div>
+
+<p>
+O painel financeiro completo está disponível apenas
+para usuários <strong>Premium</strong>.
+</p>
+
+<p>
+Para liberar o acesso ao painel web,
+ative o plano Premium no WhatsApp.
+</p>
+
+<a class="botao" 
+href="https://wa.me/5521994092156?text=%2Fupgrade" 
+target="_blank">
+💎 Ativar Premium
+</a>
+
+<div class="dica">
+Use o comando <strong>/upgrade</strong> no WhatsApp
+<br>
+⏱️ Ativação média: até 15 minutos
+</div>
+
+</div>
+
+</body>
+</html>

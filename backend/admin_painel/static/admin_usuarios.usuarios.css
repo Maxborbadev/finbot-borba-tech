@@ -1,0 +1,338 @@
+/* =========================================================
+USUÁRIOS
+========================================================= */
+
+.users {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.section-header h2 {
+  font-size: 1.2rem;
+}
+
+/* =========================================================
+BUSCA
+========================================================= */
+
+.user-search {
+  margin-top: 10px;
+
+  padding: 10px 14px;
+
+  border-radius: 10px;
+
+  border: 1px solid var(--border);
+
+  background: var(--card);
+
+  color: var(--text);
+
+  width: 100%;
+  max-width: 320px;
+
+  font-size: 0.9rem;
+}
+
+.user-search:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
+/* =========================================================
+LISTA
+========================================================= */
+
+.user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* =========================================================
+CARD USUÁRIO
+========================================================= */
+
+.user-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background: var(--card);
+  border: 1px solid var(--border);
+
+  padding: 16px;
+  border-radius: 14px;
+
+  flex-wrap: wrap;
+  gap: 12px;
+
+  transition: 0.2s;
+}
+
+.user-item:hover {
+  transform: translateY(-3px);
+
+  border-color: #334155;
+
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+/* =========================================================
+INFO USUÁRIO
+========================================================= */
+
+.user-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.user-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* =========================================================
+BADGES
+========================================================= */
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.badge.premium {
+  background: var(--yellow);
+  color: black;
+}
+
+.badge.free {
+  background: #1e293b;
+}
+
+.badge.ativo {
+  background: var(--green);
+}
+
+.badge.bloqueado {
+  background: var(--red);
+}
+
+/* =========================================================
+AÇÕES
+========================================================= */
+
+.user-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* =========================================================
+BOTÕES
+========================================================= */
+
+.btn {
+  border: none;
+  border-radius: 8px;
+
+  padding: 8px 12px;
+
+  font-size: 0.75rem;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  background: #1e293b;
+  color: var(--text);
+
+  transition: 0.15s;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+/* CORES */
+
+.btn.premium {
+  background: var(--yellow);
+  color: black;
+}
+
+.btn.remover {
+  background: #7c2d12;
+  color: white;
+}
+
+.btn.bloquear {
+  background: var(--red);
+  color: white;
+}
+
+.btn.desbloquear {
+  background: var(--green);
+  color: black;
+}
+
+.btn.apagar {
+  background: #991b1b;
+  color: white;
+}
+
+/* =========================================================
+FILTROS
+========================================================= */
+
+.filtro {
+  background: #1e293b;
+  color: var(--text);
+}
+
+.filtro:hover {
+  background: #334155;
+}
+
+/* =========================================================
+TABS (ABAS)
+========================================================= */
+
+.tabs {
+  display: flex;
+  gap: 12px;
+
+  margin-top: 10px;
+  margin-bottom: 10px;
+
+  flex-wrap: wrap;
+}
+
+.tab {
+  background: #1e293b;
+
+  border: 1px solid var(--border);
+
+  padding: 10px 16px;
+
+  border-radius: 10px;
+
+  font-size: 0.85rem;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.tab:hover {
+  background: #334155;
+}
+
+.tab.active {
+  background: var(--blue);
+
+  border-color: var(--blue);
+
+  color: white;
+}
+.pagination {
+  display: flex;
+  gap: 10px;
+
+  margin-top: 16px;
+}
+
+.pagination a {
+  background: #1e293b;
+
+  padding: 6px 12px;
+
+  border-radius: 6px;
+
+  text-decoration: none;
+
+  color: white;
+
+  font-size: 0.8rem;
+
+  transition: 0.2s;
+}
+
+.pagination a:hover {
+  background: #334155;
+}
+.page-info{
+
+font-size:.8rem;
+
+color:#94a3b8;
+
+padding:6px 10px;
+
+}
+
+/* =========================================================
+CONTEÚDO DAS ABAS
+========================================================= */
+
+.tab-content {
+  display: none;
+
+  margin-top: 16px;
+
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.tab-content.active {
+  display: flex;
+}
+
+/* =========================================================
+RESPONSIVO
+========================================================= */
+
+@media (max-width: 900px) {
+  .user-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .user-actions {
+    width: 100%;
+  }
+}
+
+@media (max-width: 700px) {
+  .tabs {
+    overflow-x: auto;
+
+    padding-bottom: 4px;
+  }
+
+  .tab {
+    flex-shrink: 0;
+  }
+}

@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>FinBot • Gerenciar Usuários</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='admin_painel.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='admin_usuarios.usuarios.css') }}"
+    />
+
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="{{ url_for('static', filename='ico16.png') }}"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="{{ url_for('static', filename='ico32.png') }}"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="{{ url_for('static', filename='ico180.png') }}"
+    />
+  </head>
+
+  <body>
+    <div class="dashboard">
+      <!-- SIDEBAR -->
+
+      <aside class="sidebar">
+        <div class="logo">⭐ FinBot</div>
+
+        <nav class="menu">
+          <a href="/painel">📊 Dashboard</a>
+          <a href="/admin/usuarios" class="active">👥 Usuários</a>
+          <a href="#">⭐ Planos</a>
+          <a href="#">💳 Assinaturas</a>
+          <a href="#">📈 Financeiro</a>
+          <a href="#">⚙️ Configurações</a>
+        </nav>
+
+        <a class="logout" href="/logout">🚪 Sair</a>
+      </aside>
+
+      <!-- MAIN -->
+
+      <main class="main">
+        <header class="header">
+          <div class="header-left">
+            <button class="menu-toggle">☰</button>
+            <h1>Gerenciar Usuários</h1>
+          </div>
+
+          <div class="header-right">
+            <span class="admin">Administrador</span>
+          </div>
+        </header>
+
+        <!-- CONTADOR -->
+
+        <section class="stats">
+          <div class="stat-card">
+            <span class="stat-title">Usuários</span>
+            <strong class="stat-value">{{ total }}</strong>
+          </div>
+
+          <div class="stat-card">
+            <span class="stat-title">Premium</span>
+            <strong class="stat-value">{{ premium }}</strong>
+          </div>
+
+          <div class="stat-card">
+            <span class="stat-title">Bloqueados</span>
+            <strong class="stat-value">{{ bloqueados }}</strong>
+          </div>
+        </section>
+
+        <!-- LISTA -->
+
+        <section class="users">
+          <div class="section-header">
+            <h2>Usuários cadastrados</h2>
+
+            <input
+              type="search"
+              id="buscarUsuario"
+              placeholder="🔎 Buscar usuário..."
+              class="user-search"
+            />
+          </div>
+
+          <!-- FILTROS -->
+
+          <div class="user-filters">
+            <button class="btn filtro active" data-filtro="todos">Todos</button>
+            <button class="btn filtro" data-filtro="premium">Premium</button>
+            <button class="btn filtro" data-filtro="free">Free</button>
+            <button class="btn filtro" data-filtro="bloqueado">
+              Bloqueados
+            </button>
+          </div>
+
+          <div class="user-list" id="listaUsuarios">
+            {% for u in usuarios %}
+
+            <div
+              class="user-item"
+              data-nome="{{ u.nome|lower }}"
+              data-whatsapp="{{ (u.whatsapp_id or '')|lower }}"
+              data-plano="{{ u.plano|lower }}"
+              data-status="{{ u.status|lower }}"
+            >
+              <div class="user-main">
+                <div class="user-name">{{ u.nome }}</div>
+
+                <div class="user-meta">
+                  <span>📱 {{ u.whatsapp_id or '—' }}</span>
+
+                  {% if u.status == 'bloqueado' %}
+                  <span class="badge bloqueado">Bloqueado</span>
+                  {% else %}
+                  <span class="badge ativo">Ativo</span>
+                  {% endif %} {% if u.plano == 'premium' %}
+                  <span class="badge premium">Premium</span>
+                  {% else %}
+                  <span class="badge free">Free</span>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="user-actions">
+                <a href="/admin/usuario/{{ u.uuid }}" class="btn">👤 Ver</a>
+
+                <a href="/resetar_cartao/{{ u.uuid }}" class="btn"
+                  >💳 Resetar Cartão</a
+                >
+
+                <a href="/apagar_gastos/{{ u.uuid }}" class="btn"
+                  >📉 Apagar Gastos</a
+                >
+
+                <a href="/apagar_rendas/{{ u.uuid }}" class="btn"
+                  >📈 Apagar Rendas</a
+                >
+
+                {% if u.plano == 'premium' %}
+
+                <a href="/remover_premium/{{ u.uuid }}" class="btn remover"
+                  >⛔ Remover Premium</a
+                >
+
+                {% else %}
+
+                <a href="/ativar_premium/{{ u.uuid }}" class="btn premium"
+                  >⭐ Premium</a
+                >
+
+                {% endif %} {% if u.status == 'bloqueado' %}
+
+                <a href="/desbloquear/{{ u.uuid }}" class="btn desbloquear"
+                  >🔓 Desbloquear</a
+                >
+
+                {% else %}
+
+                <a href="/bloquear/{{ u.uuid }}" class="btn bloquear"
+                  >🔒 Bloquear</a
+                >
+
+                {% endif %}
+
+                <a
+                  href="/apagar_usuario/{{ u.uuid }}"
+                  onclick="
+                    return confirm('Deseja realmente apagar este usuário?');
+                  "
+                  class="btn apagar"
+                >
+                  🗑️ Apagar
+                </a>
+              </div>
+            </div>
+
+            {% endfor %}
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='admin_painel.js') }}"></script>
+
+    <script>
+      const buscar = document.getElementById("buscarUsuario");
+      const usuarios = [...document.querySelectorAll(".user-item")];
+
+      /* BUSCA */
+
+      if (buscar) {
+        buscar.addEventListener("input", () => {
+          const termo = buscar.value.toLowerCase();
+
+          usuarios.forEach((user) => {
+            const nome = user.dataset.nome;
+            const whatsapp = user.dataset.whatsapp;
+
+            const encontrado = nome.includes(termo) || whatsapp.includes(termo);
+
+            user.style.display = encontrado ? "flex" : "none";
+          });
+        });
+      }
+
+      /* FILTROS */
+
+      document.querySelectorAll(".filtro").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".filtro")
+            .forEach((b) => b.classList.remove("active"));
+
+          btn.classList.add("active");
+
+          const filtro = btn.dataset.filtro;
+
+          usuarios.forEach((user) => {
+            const plano = user.dataset.plano;
+            const status = user.dataset.status;
+
+            if (filtro === "todos") {
+              user.style.display = "flex";
+              return;
+            }
+
+            if (filtro === "premium") {
+              user.style.display = plano === "premium" ? "flex" : "none";
+              return;
+            }
+
+            if (filtro === "free") {
+              user.style.display = plano === "free" ? "flex" : "none";
+              return;
+            }
+
+            if (filtro === "bloqueado") {
+              user.style.display = status === "bloqueado" ? "flex" : "none";
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

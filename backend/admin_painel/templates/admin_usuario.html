@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>FinBot • Perfil do Usuário</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- CSS -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='admin_painel.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='admin_usuarios.usuarios.css') }}"
+    />
+
+    <!-- ICONES -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="{{ url_for('static', filename='ico16.png') }}"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="{{ url_for('static', filename='ico32.png') }}"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="{{ url_for('static', filename='ico180.png') }}"
+    />
+  </head>
+
+  <body>
+    <div class="dashboard">
+      <!-- SIDEBAR -->
+
+      <aside class="sidebar">
+        <div class="logo">⭐ FinBot</div>
+
+        <nav class="menu">
+          <a href="/painel">📊 Dashboard</a>
+          <a href="/admin/usuarios" class="active">👥 Usuários</a>
+          <a href="#">⭐ Planos</a>
+          <a href="#">💳 Assinaturas</a>
+          <a href="#">📈 Financeiro</a>
+          <a href="#">⚙️ Configurações</a>
+        </nav>
+
+        <a class="logout" href="/logout">🚪 Sair</a>
+      </aside>
+
+      <!-- MAIN -->
+
+      <main class="main">
+        <header class="header">
+          <div class="header-left">
+            <button class="menu-toggle">☰</button>
+            <h1>Perfil do Usuário</h1>
+          </div>
+
+          <div class="header-right">
+            <span class="admin">Administrador</span>
+          </div>
+        </header>
+
+        <!-- RESUMO DO USUÁRIO -->
+
+        <section class="stats">
+          <div class="stat-card">
+            <span class="stat-title">👤 Nome</span>
+            <strong class="stat-value">{{ usuario.nome }}</strong>
+          </div>
+
+          <div class="stat-card">
+            <span class="stat-title">📱 WhatsApp</span>
+            <strong class="stat-value">{{ usuario.whatsapp_id or '—' }}</strong>
+          </div>
+
+          <div class="stat-card">
+            <span class="stat-title">⭐ Plano</span>
+            <strong class="stat-value">{{ usuario.plano }}</strong>
+          </div>
+
+          <div class="stat-card">
+            <span class="stat-title">📅 Cadastro</span>
+            <strong class="stat-value">{{ usuario.data_cadastro }}</strong>
+          </div>
+        </section>
+
+        <!-- ABAS -->
+
+        <section class="tabs">
+          <button class="tab active" data-tab="cartoes">💳 Cartões</button>
+
+          <button class="tab" data-tab="gastos">📉 Gastos</button>
+
+          <button class="tab" data-tab="rendas">📈 Rendas</button>
+        </section>
+
+        <!-- CARTÕES -->
+
+        <section class="tab-content active" id="cartoes">
+          {% for c in cartoes %}
+
+          <div class="user-item">
+            <div class="user-main">
+              <div class="user-name">{{ c.nome }}</div>
+
+              <div class="user-meta">
+                <span>Limite: R$ {{ c.limite }}</span>
+                <span>Fechamento: {{ c.dia_fechamento }}</span>
+              </div>
+            </div>
+          </div>
+
+          {% endfor %}
+        </section>
+
+        <!-- GASTOS -->
+
+        <section class="tab-content" id="gastos">
+          {% for g in gastos %}
+
+          <div class="user-item">
+            <div class="user-main">
+              <div class="user-name">{{ g.descricao }}</div>
+
+              <div class="user-meta">
+                <span>R$ {{ g.valor }}</span>
+                <span>{{ g.data }}</span>
+              </div>
+            </div>
+          </div>
+
+          {% endfor %}
+
+          <div class="pagination">
+            {% if pagina_gastos > 1 %}
+            <a href="?tab=gastos&pg={{ pagina_gastos - 1 }}">← Anterior</a>
+            {% endif %}
+
+            <span class="page-info">
+              Página {{ pagina_gastos }} de {{ total_paginas_gastos }}
+            </span>
+
+            {% if pagina_gastos < total_paginas_gastos %}
+            <a href="?tab=gastos&pg={{ pagina_gastos + 1 }}">Próxima →</a>
+            {% endif %}
+          </div>
+        </section>
+
+        <!-- RENDAS -->
+
+        <section class="tab-content" id="rendas">
+          {% for r in rendas %}
+
+          <div class="user-item">
+            <div class="user-main">
+              <div class="user-name">{{ r.descricao }}</div>
+
+              <div class="user-meta">
+                <span>R$ {{ r.valor }}</span>
+                <span>{{ r.data }}</span>
+              </div>
+            </div>
+          </div>
+
+          {% endfor %}
+
+          <div class="pagination">
+            {% if pagina_rendas > 1 %}
+            <a href="?tab=rendas&pr={{ pagina_rendas - 1 }}">← Anterior</a>
+            {% endif %}
+
+            <span class="page-info">
+              Página {{ pagina_rendas }} de {{ total_paginas_rendas }}
+            </span>
+
+            {% if pagina_rendas < total_paginas_rendas %}
+            <a href="?tab=rendas&pr={{ pagina_rendas + 1 }}">Próxima →</a>
+            {% endif %}
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='admin_painel.js') }}"></script>
+  </body>
+</html>
