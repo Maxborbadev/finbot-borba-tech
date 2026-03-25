@@ -13,6 +13,7 @@ const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 const filaMensagens = [];
 let enviando = false;
+let iniciando = false;
 
 const app = express();
 app.use(express.json());
@@ -20,19 +21,34 @@ app.use(express.json());
 let sock;
 
 async function startBot() {
-  const { state, saveCreds } = await useMultiFileAuthState("auth");
+  if (iniciando) return;
+  iniciando = true;
+
+  try {
+    const { state, saveCreds } = await useMultiFileAuthState("auth");
 
   sock = makeWASocket({
     logger: Pino({ level: "silent" }),
     auth: state,
-    browser: ["Ubuntu", "Chrome", "120.0.0"],
+
+    browser: ["Windows", "Chrome", "121.0.0"],
+
+    markOnlineOnConnect: true,
+    syncFullHistory: false,
+    generateHighQualityLinkPreview: false,
+
+    connectTimeoutMs: 60000,
+    defaultQueryTimeoutMs: 60000,
+
+    keepAliveIntervalMs: 10000, // 🔥 mantém conexão viva (ESSENCIAL no GCP)
+
+    retryRequestDelayMs: 250,
   });
 
   sock.ev.on("creds.update", saveCreds);
 
-  // ─────────────────────────
-  // CONEXÃO
-  // ─────────────────────────
+  let reconnectTentativas = 0;
+
   sock.ev.on("connection.update", (update) => {
     const { connection, lastDisconnect, qr } = update;
 
@@ -42,80 +58,94 @@ async function startBot() {
     }
 
     if (connection === "open") {
-      console.log("🤖 Baileys conectado com sucesso");
+      console.log("🤖 Conectado com sucesso");
+      reconnectTentativas = 0;
     }
 
     if (connection === "close") {
-      const reason = lastDisconnect?.error?.output?.statusCode;
-      console.log("⚠️ Conexão encerrada. Motivo:", reason);
+      const statusCode = lastDisconnect?.error?.output?.statusCode;
 
-      if (reason === DisconnectReason.loggedOut) {
-        console.log(
-          "❌ Sessão expirada. Apague a pasta auth e escaneie novamente.",
-        );
-      } else {
-        console.log("🔄 Reconectando em 3 segundos...");
-        setTimeout(() => startBot(), 3000);
+      console.log("⚠️ Conexão fechada:", statusCode);
+
+      // 🔥 TRATAMENTO DO 405
+      if (statusCode === 405) {
+        reconnectTentativas++;
+
+        const delay = Math.min(15000 * reconnectTentativas, 120000);
+
+        console.log(`🚫 405 detectado. Aguardando ${delay / 1000}s...`);
+
+        setTimeout(() => startBot(), delay);
+        return;
       }
+
+      if (statusCode === DisconnectReason.loggedOut) {
+        console.log("❌ Sessão inválida. Apague a pasta auth.");
+        return;
+      }
+
+      console.log("🔄 Reconectando normal...");
+      setTimeout(() => startBot(), 5000);
     }
   });
-
   // ─────────────────────────
   // RECEBER MENSAGENS
   // ─────────────────────────
   sock.ev.on("messages.upsert", async ({ messages, type }) => {
-    if (type !== "notify") return;
+  if (type !== "notify") return;
 
-    const msg = messages[0];
-    if (!msg.message || msg.key.fromMe) return;
+  const msg = messages[0];
+  if (!msg.message || msg.key.fromMe) return;
 
-    const texto =
-      msg.message.conversation || msg.message.extendedTextMessage?.text;
+  const texto =
+    msg.message.conversation || msg.message.extendedTextMessage?.text;
 
-    if (!texto) return;
+  if (!texto) return;
 
-    const chatId = msg.key.remoteJid;
-    const telefone = chatId.replace("@s.whatsapp.net", "");
+  const chatId = msg.key.remoteJid;
+  const telefone = chatId.replace("@s.whatsapp.net", "");
 
-    console.log("📩 Mensagem recebida:", texto);
+  console.log("📩 Mensagem recebida:", texto);
 
-    try {
-      const response = await axios.post("http://127.0.0.1:5000/mensagem", {
-        telefone,
-        texto,
-      });
+  try {
+    const response = await axios.post("http://127.0.0.1:5000/mensagem", {
+      telefone,
+      texto,
+    });
 
-      const resposta = response.data?.resposta;
+    const resposta = response.data?.resposta;
 
-      if (Array.isArray(resposta)) {
-        for (const msg of resposta) {
-          if (typeof msg === "string") {
-            await sock.sendMessage(chatId, {
-              text: msg,
-            });
-          } else if (msg.imagem) {
-            await sock.sendMessage(chatId, {
-              image: { url: msg.imagem },
-              caption: "📷 Escaneie o QR Code para pagar",
-            });
-          }
-
-          await new Promise((r) => setTimeout(r, 800));
+    if (Array.isArray(resposta)) {
+      for (const msg of resposta) {
+        if (typeof msg === "string") {
+          await sock.sendMessage(chatId, { text: msg });
+        } else if (msg.imagem) {
+          await sock.sendMessage(chatId, {
+            image: { url: msg.imagem },
+            caption: "📷 Escaneie o QR Code para pagar",
+          });
         }
-      } else if (resposta) {
-        await sock.sendMessage(chatId, {
-          text: resposta,
-        });
-      }
-    } catch (err) {
-      console.error("❌ Erro ao comunicar com Flask:", err.message);
 
-      await sock.sendMessage(chatId, {
-        text: "⚠️ Ocorreu um erro ao processar sua mensagem. Tente novamente.",
-      });
+        await new Promise((r) => setTimeout(r, 800));
+      }
+    } else if (resposta) {
+      await sock.sendMessage(chatId, { text: resposta });
     }
-  });
+  } catch (err) {
+    console.error("❌ Erro ao comunicar com Flask:", err.message);
+
+    await sock.sendMessage(chatId, {
+      text: "⚠️ Ocorreu um erro ao processar sua mensagem. Tente novamente.",
+    });
+  }
+});
+  } catch (err) {
+    console.error("Erro ao iniciar:", err);
+  } finally {
+    iniciando = false;
+  }
 }
+
 
 startBot();
 
