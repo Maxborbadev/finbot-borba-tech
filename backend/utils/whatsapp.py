@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 BOT_URL = os.getenv("BOT_URL")
+if not BOT_URL:
+    raise Exception("BOT_URL não definido no .env")
 
 def enviar_whatsapp(numero, mensagem):
 
