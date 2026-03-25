@@ -1,10 +1,6 @@
-# 🤖 FinBot — Agente Financeiro
+# 🤖 FinBot — Agente Financeiro Inteligente
 
-
-
-**FinBot — Agente Financeiro** é um bot desenvolvido para **uso pessoal**, com o objetivo de auxiliar no **controle financeiro diário**.
-
-Ele permite registrar **gastos, rendas, contas fixas e gastos no cartão diretamente pelo WhatsApp**, além de oferecer um **painel administrativo web** com gráficos e visualizações detalhadas.
+O **FinBot** é um agente financeiro que permite gerenciar suas finanças de forma prática diretamente pelo **WhatsApp**, com suporte a **gastos, rendas, cartões, contas fixas, relatórios e painel web administrativo**.
 
 ![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![Node.js](https://img.shields.io/badge/Node.js-LTS-339933?style=for-the-badge&logo=node.js&logoColor=white)
@@ -13,61 +9,140 @@ Ele permite registrar **gastos, rendas, contas fixas e gastos no cartão diretam
 
 ---
 
-🔗 **Repositório oficial**  
-https://github.com/Maxborbadev/finbot-borba-tech
+## 🚀 Visão Geral
+
+O FinBot foi desenvolvido para centralizar o controle financeiro em um único lugar, utilizando uma interface simples: **mensagens no WhatsApp**.
+
+A aplicação combina:
+
+- 📲 Entrada de dados via WhatsApp  
+- 🧠 Processamento com Python  
+- 📊 Visualização em painel web  
+- 💳 Integração com pagamentos (PIX)  
+
+
+---
+
+
+## 📸 Demonstração
+
+### 🔐 Tela de Login
+![Login](docs/images/login.jpg)
+
+### 📊 Dashboard Principal
+![Dashboard](docs/images/inicio.jpg)
+
+### 📈 Análises e Gráficos
+![Gráficos](docs/images/inicio2.jpg)
+
+### 📋 Resumo Financeiro
+![Resumo](docs/images/resumo.jpg)
+
+---
+
+## 🚀 Status do Projeto
+
+O **FinBot** está atualmente em **produção ativa**, sendo utilizado em ambiente real para controle financeiro.
+
+📅 Previsão de operação: até **04 de junho de 2026**
+
+> ⚠️ Projeto em evolução contínua, podendo receber melhorias, ajustes e novas funcionalidades.
 
 ---
 
 ## 🎯 Objetivo do Projeto
 
-- Facilitar o controle financeiro pessoal  
-- Centralizar registros financeiros via WhatsApp  
-- Oferecer visualização clara e organizada dos dados  
-- Servir como projeto de portfólio e base para evolução futura  
+- Automatizar o controle financeiro pessoal  
+- Simplificar o registro de gastos e rendas  
+- Centralizar informações financeiras  
+- Servir como base para evolução futura  
 
 ---
 
-## 👤 Público-alvo
+## 👤 Público-Alvo
 
-- Uso pessoal  
-- Usuários que desejam controlar finanças de forma simples e prática  
+- Usuários que desejam controlar suas finanças de forma simples  
+- Uso pessoal ou projetos experimentais  
 
 ---
 
-## 🧠 Visão Geral de Funcionamento
+## ⚙️ Funcionalidades
 
-1. O usuário interage com o FinBot via **WhatsApp**  
-2. Registra gastos, rendas e contas fixas por mensagens ou comandos  
-3. Os dados são processados por um **back-end em Python**  
-4. Um **painel web administrativo** permite visualizar gráficos e informações detalhadas  
-5. O sistema roda localmente, com acesso externo via **Ngrok**  
+### 💸 Financeiro
+- Registro de gastos e rendas via WhatsApp  
+- Ajuste manual de saldo e salário  
+- Controle de cofrinho (reserva financeira)  
+
+### 💳 Cartão de Crédito
+- Registro de compras à vista e parceladas  
+- Cadastro e seleção de cartões  
+- Geração de fatura em PDF  
+
+### 📆 Contas Fixas
+- Cadastro com periodicidade (mensal, semanal, anual)  
+- Listagem e remoção de contas  
+
+### 📊 Relatórios
+- Diário, semanal e mensal  
+- Relatório avançado  
+
+### 🔐 Conta do Usuário
+- Recuperação de senha via email  
+- Consulta de plano (Free/Premium)  
+
+### 💎 Monetização
+- Upgrade para plano Premium com pagamento via PIX  
+
+### 🖥️ Painel Web
+- Acesso ao painel financeiro online  
+- Visualização de dados e gráficos  
 
 ---
 
 ## 💬 Comandos do Bot
 
-### 📘 Principais
+### 📘 Gerais
 - `/menu` → Menu principal  
 - `/comandos` → Lista de comandos  
-- `/ajuda` → Instruções de uso  
-- `/saldo` → Ver saldo atual  
-- `/plano` → Ver plano atual  
+- `/ajuda` → Instruções  
 
-### 💸 Lançamentos
-- `/gasto` → Registrar gasto  
-- `/renda` → Registrar renda  
-- `/cartao` → Registrar gastos no cartão  
+---
+
+### 💸 Financeiro
+- `gastei VALOR DESCRIÇÃO` → Registrar gasto  
+- `recebi VALOR DESCRIÇÃO` → Registrar renda  
+- `/saldo` → Ver saldo atual  
+
+---
+
+### 💳 Cartão
+- `cartao VALOR DESCRIÇÃO` → Registrar gasto no cartão  
+- `/novocartao` → Cadastrar cartão  
+- `/cartoes` → Listar cartões  
+- `/fatura` → Gerar fatura PDF  
+
+---
 
 ### 📆 Contas Fixas
-- `/contafixa` → Cadastrar conta fixa  
-- `/fixas` → Listar contas fixas  
-- `/removerconta` → Remover conta fixa  
+- `/contafixa` → Criar conta fixa  
+- `/fixas` → Listar contas  
+- `/removerconta` → Remover conta  
+
+---
+
+### 🐷 Cofrinho
+- `/cofrinho VALOR` → Guardar dinheiro  
+- `/attcofre VALOR` → Atualizar total  
+
+---
 
 ### 📊 Relatórios
-- `/hoje` ou `/dia` → Resumo diário  
-- `/semanal` → Resumo semanal  
-- `/mensal` → Resumo mensal  
-- `/avancado` → Relatório completo  
+- `/dia` ou `/hoje` → Diário  
+- `/semanal` → Semanal  
+- `/mensal` → Mensal  
+- `/avancado` → Completo  
+
+---
 
 ### ⚙️ Ajustes
 - `/attsaldo` → Ajustar saldo  
@@ -75,171 +150,119 @@ https://github.com/Maxborbadev/finbot-borba-tech
 
 ---
 
-## ⚙️ Funcionalidades
-
-- Registro de gastos e rendas via WhatsApp  
-- Cadastro de contas fixas (valor, periodicidade e vencimento)  
-- Controle de gastos no cartão com parcelamento  
-- Visualização dos últimos lançamentos diretamente no bot  
-- Painel administrativo com:
-  - Gráficos de entradas e saídas  
-  - Gráficos de linha  
-  - Gráficos em pizza  
-- Autenticação por login e senha  
-- Categorização automática de gastos por palavras-chave  
+### 🔐 Conta
+- `/recuperarsenha` → Recuperar senha  
+- `/plano` → Ver plano  
 
 ---
 
-## 🧩 Arquitetura Geral
+### 💎 Premium
+- `/upgrade` → Ativar plano Premium  
+
+---
+
+## 🧩 Arquitetura
 
 - **Node.js** → Integração com WhatsApp  
-- **Python** → Lógica de negócio e processamento  
-- **Flask** → Painel administrativo web  
-- **SQLite** → Persistência de dados  
-- **PowerShell (.ps1)** → Inicialização automatizada do sistema  
-
-> Todos os serviços são iniciados automaticamente por meio de um script PowerShell.
-
----
-
-## 🛠️ Tecnologias Utilizadas
-
-### 🔹 Back-end
-- Python  
-- Flask 3.1.2  
-- Flask-WTF 1.2.2  
-- Werkzeug 3.1.5  
-- python-dotenv 1.2.1  
-- schedule 1.2.2  
-
-### 🔹 Front-end
-- HTML5  
-- CSS3  
-- JavaScript  
-
-### 🔹 Infraestrutura
-- Node.js  
-- npm  
-- Ngrok  
-- PowerShell  
+- **Python** → Lógica de negócio  
+- **Flask** → Painel web  
+- **SQLite** → Banco de dados  
 
 ---
 
 ## 📁 Estrutura do Projeto
 
-```text
+```
 finbot-borba-tech/
 ├── backend/
-│   ├── admin_painel/
-│   ├── db/
-│   ├── models/
-│   ├── services/
-│   ├── utils/
-│   ├── app.py
-│   ├── scheduler.py
-│   └── requirements.txt
 ├── whatsapp_bot/
 ├── docs/
-├── venv/
 ├── requirements.txt
-├── start_finbot.ps1
 └── README.md
 ```
 
 ---
 
-## ▶️ Como Executar o Projeto
+## 🔐 Variáveis de Ambiente
 
-### ✅ Pré-requisitos
-- Python 3.x  
-- Node.js + npm  
-- PowerShell (Windows)  
+Este projeto utiliza variáveis de ambiente para armazenar dados sensíveis.
 
-### 🔽 Clonar o repositório
+### 📄 Crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo:
 
-```bash
+```env
+ENV=development
+DEBUG=True
+
+BASE_URL=http://localhost:5001
+
+SECRET_KEY=sua_chave_secreta_aqui
+
+#Email e senha de login do painel administrativo 
+
+EMAIL_USER=seu_email@gmail.com
+EMAIL_PASSWORD=sua_senha_de_app
+
+# DATABASE 
+DB_PASSWORD=sua_senha
+
+# MERCADO PAGO
+MP_ACCESS_TOKEN=seu_token_aqui
+```
+---
+
+## ▶️ Como Executar
+
+### 1. Clonar
+
+```
 git clone https://github.com/Maxborbadev/finbot-borba-tech
 cd finbot-borba-tech
 ```
 
 ---
 
-### 2️⃣ Ambiente virtual
+### 2. Ambiente virtual
 
-```bash
+```
 python -m venv venv
 ```
 
-**Ativação**
+Ativação:
 
-```bash
-# Windows
+```
 venv\Scripts\activate
-
-# Linux / Mac
-source venv/bin/activate
 ```
 
 ---
 
-### 3️⃣ Dependências Python
+### 3. Instalar dependências
 
-```bash
+```
 pip install -r requirements.txt
 ```
 
 ---
 
-### 4️⃣ Dependências do bot
+### 4. Rodar backend
 
-```bash
-cd whatsapp_bot
-npm install
 ```
-
----
-
-## ▶️ Executando o Sistema
-
-### ✔ Windows (automático)
-
-```bash
-start_finbot.ps1
-```
-
----
-
-### ✔ Manual
-
-**Backend**
-
-```bash
 cd backend
 python app.py
 ```
 
-Servidor:
-
-```
-http://localhost:5000
-```
-
 ---
 
-**Bot WhatsApp**
+### 5. Rodar bot
 
-```bash
+```
 cd whatsapp_bot
-node index.js
+npm install
+node baileys_bot.js
 ```
-
-Na primeira execução será exibido um **QR Code** para autenticação.
 
 ---
 
-## 🖥️ Painel Administrativo
-
-Acesse pelo navegador:
+## 🖥️ Painel Web
 
 ```
 http://localhost:5000/admin
@@ -247,21 +270,28 @@ http://localhost:5000/admin
 
 ---
 
-## ⚠️ Limitações Atuais
+## ⚠️ Limitações
 
-- Não utiliza API oficial do WhatsApp
-- Não envia mensagens automáticas
-- Execução apenas local
-- Scheduler sem envio automático de mensagens
+- Não utiliza API oficial do WhatsApp  
+- 
+- Dependência de QR Code para login  ( apenas na primeira vez que for conectar )
 
 ---
+
+## 🚀 Diferenciais
+
+- Interface via WhatsApp  
+- Sistema financeiro completo  
+- Integração com pagamento via PIX  
+- Arquitetura modular e escalável  
+
+---
+
 ## 👨‍💻 Desenvolvedor
 
 **Max Borba**  
-**Borba Tech**
+Borba Tech  
 
 ---
 
-### ⭐ Se este projeto te ajudou, deixe uma estrela no GitHub
-
-
+### ⭐ Se este projeto te ajudou, deixe uma estrela no repositório

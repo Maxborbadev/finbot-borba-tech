@@ -46,10 +46,18 @@ def criar_pix(usuario_uuid, email):
     limpar_pagamentos_pendentes(usuario_uuid)
     db = get_connection()
 
+    db.execute("""
+        UPDATE pagamentos
+        SET status = 'expirado'
+        WHERE status = 'pendente'
+        AND criado_em < datetime('now', '-30 minutes')
+    """)
+    db.commit()
+
     pendente = db.execute(
         """
         SELECT 1 FROM pagamentos
-        WHERE usuario_uuid = ? AND status = 'pending'
+        WHERE usuario_uuid = ? AND status = 'pendente'
         LIMIT 1
         """,
         (usuario_uuid,),
@@ -94,8 +102,8 @@ def criar_pix(usuario_uuid, email):
 
     db.execute(
         """
-        INSERT INTO pagamentos (usuario_uuid, payment_id, status)
-        VALUES (?, ?, 'pending')
+        INSERT INTO pagamentos (usuario_uuid, payment_id, status, criado_em)
+        VALUES (?, ?, 'pendente', datetime('now'))
         """,
         (usuario_uuid, payment_id),
     )
@@ -149,8 +157,8 @@ def limpar_pagamentos_pendentes(usuario_uuid):
     pagamentos = db.execute(
         """
         SELECT payment_id FROM pagamentos
-        WHERE usuario_uuid = ? AND status = 'pending'
-    """,
+        WHERE usuario_uuid = ? AND status = 'pendente'
+        """,
         (usuario_uuid,),
     ).fetchall()
 
@@ -161,14 +169,25 @@ def limpar_pagamentos_pendentes(usuario_uuid):
         try:
             status_mp = verificar_pagamento(payment_id)["status"]
 
-            if status_mp != "pending":
+            # 🔥 Mapeamento correto
+            if status_mp == "approved":
+                novo_status = "pago"
+            elif status_mp == "pending":
+                novo_status = "pendente"
+            elif status_mp == "expired":
+                novo_status = "expirado"
+            else:
+                novo_status = "cancelado"
+
+            # Atualiza só se mudou
+            if novo_status != "pendente":
                 db.execute(
                     """
                     UPDATE pagamentos
                     SET status = ?
                     WHERE payment_id = ?
-                """,
-                    (status_mp, payment_id),
+                    """,
+                    (novo_status, payment_id),
                 )
 
         except Exception as e:
