@@ -1,12 +1,16 @@
-import requests, os
+import requests
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
+BOT_URL = os.getenv("BOT_URL")
 
 def enviar_whatsapp(numero, mensagem):
 
     try:
 
         r = requests.post(
-            "http://127.0.0.1:3000/enviar",
+            f"{BOT_URL}/enviar",
             json={"numero": numero, "mensagem": mensagem},
             timeout=5,
         )
@@ -24,7 +28,7 @@ def enviar_whatsapp_documento(numero, caminho_pdf):
         with open(caminho_pdf, "rb") as arquivo:
 
             r = requests.post(
-                "http://127.0.0.1:3000/enviar-documento",
+                f"{BOT_URL}/enviar-documento",
                 files={"arquivo": arquivo},
                 data={"numero": numero},
                 timeout=10,
