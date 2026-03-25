@@ -49,8 +49,13 @@ async function startBot() {
       const reason = lastDisconnect?.error?.output?.statusCode;
       console.log("⚠️ Conexão encerrada. Motivo:", reason);
 
-      if (reason !== DisconnectReason.loggedOut) {
-        startBot();
+      if (reason === DisconnectReason.loggedOut) {
+        console.log(
+          "❌ Sessão expirada. Apague a pasta auth e escaneie novamente.",
+        );
+      } else {
+        console.log("🔄 Reconectando em 3 segundos...");
+        setTimeout(() => startBot(), 3000);
       }
     }
   });
