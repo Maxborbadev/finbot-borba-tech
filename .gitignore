@@ -84,7 +84,7 @@ whatsapp_bot/temp/
 
 # Banco específico (garantia extra)
 financas.db
-
+*.sqlite3
 # ======================
 # System
 # ======================

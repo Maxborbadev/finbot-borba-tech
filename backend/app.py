@@ -56,7 +56,7 @@ def receber_mensagem():
 if __name__ == "__main__":
 
     if ENV == "development":
-        app.run(port=5000, debug=True)
+        app.run(host="0.0.0.0", port=5000, debug=True)
 
     else:
-        app.run(port=5000)
+        app.run(host="0.0.0.0", port=5000)
