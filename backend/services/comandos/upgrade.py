@@ -8,11 +8,12 @@ def comando_upgrade(usuario):
 
     pagamento_pendente = db.execute(
         """
-        SELECT id
-        FROM pagamentos
-        WHERE usuario_uuid = ?
-        AND status = 'pendente'
-        """,
+    SELECT id
+    FROM pagamentos
+    WHERE usuario_uuid = ?
+    AND status = 'pendente'
+    AND criado_em > datetime('now', '-30 minutes')
+    """,
         (usuario["uuid"],),
     ).fetchone()
 
