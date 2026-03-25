@@ -29,7 +29,7 @@ def comando_upgrade(usuario):
     pagamento = criar_pix(usuario["uuid"], usuario["email"])
 
     pix = pagamento["pix"]
-    qr_path = pagamento["qr_path"]
+    qr_base64 = pagamento["qr_base64"]
 
     mensagem = (
         "💎 *FINBOT PREMIUM*\n"
@@ -50,4 +50,4 @@ def comando_upgrade(usuario):
 
     pix_info = "📋 *PIX Copia e Cola*\n" "Toque e segure para copiar:"
 
-    return [mensagem, {"imagem": qr_path}, pix_info, pix]
+    return [mensagem, {"imagem_base64": qr_base64}, pix_info, pix]

@@ -122,9 +122,11 @@ async function startBot() {
           for (const msg of resposta) {
             if (typeof msg === "string") {
               await sock.sendMessage(chatId, { text: msg });
-            } else if (msg.imagem) {
+            } else if (msg.imagem_base64) {
+              const buffer = Buffer.from(msg.imagem_base64, "base64");
+
               await sock.sendMessage(chatId, {
-                image: { url: msg.imagem },
+                image: buffer,
                 caption: "📷 Escaneie o QR Code para pagar",
               });
             }

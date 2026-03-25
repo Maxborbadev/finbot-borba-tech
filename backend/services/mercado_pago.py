@@ -111,9 +111,7 @@ def criar_pix(usuario_uuid, email):
     db.commit()
     db.close()
 
-    qr_path = salvar_qr(qr_base64, usuario_uuid)
-
-    return {"pix": pix, "qr_path": qr_path, "payment_id": payment_id}
+    return {"pix": pix, "qr_base64": qr_base64, "payment_id": payment_id}
 
 
 def limpar_qr_expirados():
