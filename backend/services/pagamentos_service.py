@@ -56,7 +56,8 @@ def processar_pagamento(payment_id):
         """
         UPDATE usuarios
         SET plano = 'premium',
-            plano_expira_em = ?
+            plano_expira_em = ?,
+            origem_premium = 'pago'
         WHERE uuid = ?
         """,
         (expira, usuario_uuid),

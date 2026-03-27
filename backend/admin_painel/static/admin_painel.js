@@ -108,6 +108,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
   })
 
+  // =====================================================
+  // PREMIUM GRÁTIS (USUÁRIOS DE HOJE)
+// =====================================================
+
+const btnPremiumHoje = document.querySelector("#btnPremiumHoje")
+
+if (btnPremiumHoje) {
+
+  btnPremiumHoje.addEventListener("click", () => {
+
+    if (!confirm("Dar 7 dias grátis para usuários cadastrados hoje?")) return
+
+    fetch("/admin/premium-hoje", {
+      method: "POST"
+    })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.msg)
+      location.reload()
+    })
+    .catch(() => {
+      alert("Erro ao executar ação")
+    })
+
+  })
+
+}
+
 })
 
 // =====================================================

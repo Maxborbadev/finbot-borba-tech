@@ -396,7 +396,29 @@ def msg_plano_premium_ativado(expira):
         "⚠️ Quando seu plano estiver próximo de expirar, avisaremos você automaticamente.\n\n"
         "🚀 Obrigado por apoiar o FinBot"
     )
+#===================================
+#mensagem de premium de 7 dias ativado
+#====================================
+def msg_premium_gratis_7_dias(expira):
 
+    dias_restantes = (expira - datetime.now()).days
+
+    return (
+        "🎁 *FINBOT PREMIUM LIBERADO*\n"
+        "━━━━━━━━━━━━━━━━━━\n\n"
+        "🚀 *Você ganhou 7 dias grátis!*\n"
+        "Seu acesso ao *FinBot Premium* foi liberado para teste.\n\n"
+        f"📅 *Acesso válido até:* {expira.strftime('%d/%m/%Y')}\n"
+        f"⏳ *Dias restantes:* {dias_restantes}\n\n"
+        "Agora você pode aproveitar todos os recursos premium:\n"
+        "✔ Relatórios financeiros completos\n"
+        "✔ Controle avançado de cartões\n"
+        "✔ Organização automática de gastos\n"
+        "✔ Painel financeiro completo\n\n"
+        "💡 Aproveite esse período para organizar sua vida financeira!\n"
+        "💎 Depois, você pode ativar o plano completo a qualquer momento.\n\n"
+        "🚀 Aproveite o FinBot!"
+    )
 
 # ============================================
 # AVISO DE CONTA VENCENDO (AUTO)

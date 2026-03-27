@@ -59,6 +59,7 @@ def criar_tabelas():
     saldo REAL DEFAULT 0,
     plano TEXT DEFAULT 'Free',
     plano_expira_em DATETIME,
+    origem_premium TEXT,
     status TEXT DEFAULT 'ativo',
     estado TEXT DEFAULT 'novo',
     conta_ativa INTEGER DEFAULT 1,
@@ -297,6 +298,7 @@ CREATE TABLE IF NOT EXISTS gastos_cartao (
     # ======================================================
 
     garantir_coluna(conn, "gastos_cartao", "categoria", "TEXT")
+    garantir_coluna(conn, "usuarios", "origem_premium", "TEXT")
     conn.commit()
     conn.close()
 

@@ -10,6 +10,8 @@ from models.renda import (
     total_rendas_periodo,
     listar_rendas_periodo,
 )
+
+
 # ─────────────────────────────
 # TOTAL DE GASTOS DO SISTEMA
 # ─────────────────────────────
@@ -60,8 +62,14 @@ def total_premium():
     cursor = conn.cursor()
 
     cursor.execute(
-        "SELECT COUNT(*) FROM usuarios WHERE plano = 'premium'"
+        """
+        SELECT COUNT(*) 
+        FROM usuarios 
+        WHERE plano = 'premium'
+        AND origem_premium = 'pago'
+        """
     )
+
     total = cursor.fetchone()[0]
 
     conn.close()
@@ -74,7 +82,7 @@ def total_premium():
 def resumo_usuario(usuario_uuid):
     agora = datetime.now()
     inicio_mes = agora.replace(day=1, hour=0, minute=0, second=0)
-    
+
     total_cofrinho = obter_total_cofrinho(usuario_uuid)
 
     return {
@@ -82,7 +90,7 @@ def resumo_usuario(usuario_uuid):
         "total_rendas": total_rendas_periodo(usuario_uuid, inicio_mes, agora),
         "gastos": listar_gastos_periodo(usuario_uuid, inicio_mes, agora),
         "rendas": listar_rendas_periodo(usuario_uuid, inicio_mes, agora),
-        "total_cofrinho":total_cofrinho,
+        "total_cofrinho": total_cofrinho,
     }
 
 
@@ -93,29 +101,33 @@ def grafico_mes_usuario(usuario_uuid):
     conn = get_connection()
     cursor = conn.cursor()
 
-    inicio_mes = datetime.now().replace(
-        day=1, hour=0, minute=0, second=0
-    )
+    inicio_mes = datetime.now().replace(day=1, hour=0, minute=0, second=0)
 
-    cursor.execute("""
+    cursor.execute(
+        """
         SELECT strftime('%d', data), SUM(valor)
         FROM compras
         WHERE usuario_uuid = ?
           AND data >= ?
         GROUP BY 1
         ORDER BY 1
-    """, (usuario_uuid, inicio_mes))
+    """,
+        (usuario_uuid, inicio_mes),
+    )
 
     gastos = cursor.fetchall()
 
-    cursor.execute("""
+    cursor.execute(
+        """
         SELECT strftime('%d', data), SUM(valor)
         FROM rendas
         WHERE usuario_uuid = ?
           AND data >= ?
         GROUP BY 1
         ORDER BY 1
-    """, (usuario_uuid, inicio_mes))
+    """,
+        (usuario_uuid, inicio_mes),
+    )
 
     rendas = cursor.fetchall()
     conn.close()
@@ -145,17 +157,18 @@ def grafico_pizza_gastos(usuario_uuid):
     conn = get_connection()
     cursor = conn.cursor()
 
-    inicio_mes = datetime.now().replace(
-        day=1, hour=0, minute=0, second=0
-    )
+    inicio_mes = datetime.now().replace(day=1, hour=0, minute=0, second=0)
 
-    cursor.execute("""
+    cursor.execute(
+        """
         SELECT categoria, SUM(valor)
         FROM compras
         WHERE usuario_uuid = ?
           AND data >= ?
         GROUP BY categoria
-    """, (usuario_uuid, inicio_mes))
+    """,
+        (usuario_uuid, inicio_mes),
+    )
 
     dados = cursor.fetchall()
     conn.close()
@@ -167,7 +180,4 @@ def grafico_pizza_gastos(usuario_uuid):
         categorias.append(cat or "Outros")
         valores.append(float(total))
 
-    return {
-        "categorias": categorias,
-        "valores": valores
-    }
+    return {"categorias": categorias, "valores": valores}

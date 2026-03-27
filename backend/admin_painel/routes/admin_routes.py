@@ -1,21 +1,19 @@
 from datetime import datetime, timedelta
-from flask import Blueprint, render_template, request, redirect, url_for, session
+from flask import Blueprint, render_template, request, redirect, url_for
 from admin_painel.decorators import admin_required
 from admin_painel.extensions import csrf
 
 from db.database import get_connection
 from utils.whatsapp import enviar_whatsapp
 from services.admin_service import (
-    grafico_mes_usuario,
-    grafico_pizza_gastos,
     total_gastos_sistema,
     total_premium,
     total_rendas_sistema,
     saldo_geral,
-    resumo_usuario,
 )
 
 from services.mensagens import msg_plano_premium_ativado
+from services.mensagens import msg_premium_gratis_7_dias
 from services.pagamentos_service import processar_pagamento
 from models.usuario import buscar_usuario_por_uuid
 
@@ -207,7 +205,8 @@ def ativar_premium(uuid):
         """
         UPDATE usuarios
         SET plano = 'premium',
-            plano_expira_em = ?
+            plano_expira_em = ?,
+            origem_premium = 'gratis'
         WHERE uuid = ?
         """,
         (expira, uuid),
@@ -445,3 +444,60 @@ def apagar_rendas(uuid):
     db.close()
 
     return redirect(url_for("admin.admin_usuarios"))
+
+@admin_bp.route("/admin/premium-hoje", methods=["POST"])
+@csrf.exempt
+@admin_required
+def dar_premium_hoje():
+
+    db = get_db()
+
+    from datetime import datetime, timedelta
+    from utils.whatsapp import enviar_whatsapp
+    from services.mensagens import msg_premium_gratis_7_dias
+    import time
+
+    expira = datetime.now() + timedelta(days=7)
+
+    # 🔍 pega usuários de hoje (evita duplicar)
+    usuarios = db.execute(
+        """
+        SELECT uuid, whatsapp_id
+        FROM usuarios
+        WHERE DATE(data_cadastro) = DATE('now')
+        AND plano != 'premium'
+        AND origem_premium IS NULL
+        """
+    ).fetchall()
+
+    afetados = 0
+
+    for u in usuarios:
+
+        # ativa premium
+        db.execute(
+            """
+            UPDATE usuarios
+            SET plano = 'premium',
+                plano_expira_em = ?,
+                origem_premium = 'gratis'
+            WHERE uuid = ?
+            """,
+            (expira, u["uuid"])
+        )
+
+        # envia mensagem correta (7 dias grátis)
+        if u["whatsapp_id"]:
+            mensagem = msg_premium_gratis_7_dias(expira)
+            enviar_whatsapp(u["whatsapp_id"], mensagem)
+            time.sleep(0.3)  # evita bloqueio
+
+        afetados += 1
+
+    db.commit()
+    db.close()
+
+    return {
+        "status": "ok",
+        "msg": f"{afetados} usuários receberam 7 dias grátis"
+    }
