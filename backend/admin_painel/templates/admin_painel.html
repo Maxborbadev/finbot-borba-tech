@@ -72,49 +72,76 @@
 
         <section class="stats">
           <div class="stat-card">
-            <div class="stat-title">👥 Usuários</div>
+            <div class="stat-header">
+              <span class="icon info">👥</span>
+              <span class="stat-title">Usuários</span>
+            </div>
             <div class="stat-value">{{ total }}</div>
           </div>
 
           <div class="stat-card">
-            <div class="stat-title">⭐ Premium</div>
+            <div class="stat-header">
+              <span class="icon warning">⭐</span>
+              <span class="stat-title">Premium</span>
+            </div>
             <div class="stat-value">{{ premium }}</div>
           </div>
 
           <div class="stat-card">
-            <div class="stat-title">🟢 Ativos hoje</div>
+            <div class="stat-header">
+              <span class="icon success">🟢</span>
+              <span class="stat-title">Ativos hoje</span>
+            </div>
             <div class="stat-value">{{ ativos_hoje }}</div>
           </div>
 
           <div class="stat-card">
-            <div class="stat-title">🆕 Novos hoje</div>
+            <div class="stat-header">
+              <span class="icon primary">🆕</span>
+              <span class="stat-title">Novos hoje</span>
+            </div>
             <div class="stat-value">{{ novos_hoje }}</div>
           </div>
 
           <div class="stat-card">
-            <div class="stat-title">⚠️ Expiram em 7 dias</div>
+            <div class="stat-header">
+              <span class="icon warning">⚠️</span>
+              <span class="stat-title">Expiram em 7 dias</span>
+            </div>
             <div class="stat-value">{{ expiram }}</div>
           </div>
 
           <div class="stat-card">
-            <div class="stat-title">💰 Receita estimada</div>
+            <div class="stat-header">
+              <span class="icon success">💰</span>
+              <span class="stat-title">Receita estimada</span>
+            </div>
             <div class="stat-value">R$ {{ receita }}</div>
           </div>
 
           <div class="stat-card">
-            <div class="stat-title">📉 Gastos</div>
+            <div class="stat-header">
+              <span class="icon danger">📉</span>
+              <span class="stat-title">Gastos</span>
+            </div>
             <div class="stat-value">R$ {{ gastos|dinheiro }}</div>
           </div>
 
           <div class="stat-card">
-            <div class="stat-title">📈 Rendas</div>
+            <div class="stat-header">
+              <span class="icon success">📈</span>
+              <span class="stat-title">Rendas</span>
+            </div>
             <div class="stat-value">R$ {{ rendas|dinheiro }}</div>
           </div>
 
           <div
             class="stat-card saldo {% if saldo < 0 %}negativo{% else %}positivo{% endif %}"
           >
-            <div class="stat-title">⚖️ Saldo</div>
+            <div class="stat-header">
+              <span class="icon primary">⚖️</span>
+              <span class="stat-title">Saldo</span>
+            </div>
             <div class="stat-value">R$ {{ saldo|dinheiro }}</div>
           </div>
         </section>
@@ -123,10 +150,6 @@
           <a href="/admin/aviso">
             <button class="tool">📢 Enviar aviso</button>
           </a>
-
-          <button class="tool">🎁 Dar 30 dias premium</button>
-
-          <button class="tool">📊 Relatórios</button>
         </section>
 
         <!-- LISTA DE USUÁRIOS -->
