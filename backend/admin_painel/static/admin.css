@@ -1,0 +1,305 @@
+/* =========================================
+RESET
+========================================= */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* =========================================
+VARIÁVEIS
+========================================= */
+:root {
+  --bg: #0b0f14;
+  --panel: #11161c;
+  --card: #151b23;
+
+  --border: #1f2937;
+
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+
+  --primary: #22c55e;
+  --danger: #ef4444;
+  --warning: #facc15;
+  --info: #3b82f6;
+
+  --radius: 14px;
+
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  --glow: 0 0 20px rgba(34, 197, 94, 0.15);
+}
+
+/* =========================================
+BODY
+========================================= */
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* =========================================
+LAYOUT
+========================================= */
+.dashboard {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+/* =========================================
+SIDEBAR
+========================================= */
+.sidebar {
+  background: linear-gradient(180deg, #0b0f14, #05080c);
+  border-right: 1px solid var(--border);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.logo {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.menu a {
+  padding: 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--muted);
+  display: block;
+  transition: 0.2s;
+}
+
+.menu a:hover {
+  background: #1a2230;
+  color: white;
+}
+
+.menu a.active {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--primary);
+  box-shadow: var(--glow);
+}
+
+.logout {
+  margin-top: auto;
+  color: var(--danger);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* =========================================
+MAIN
+========================================= */
+.main {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* =========================================
+HEADER
+========================================= */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(17, 22, 28, 0.6);
+  backdrop-filter: blur(10px);
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+/* =========================================
+STATS (CARDS)
+========================================= */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  background: linear-gradient(145deg, #151b23, #10161c);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow);
+  transition: 0.3s;
+}
+
+.stat-card:hover {
+  border-color: var(--primary);
+  box-shadow: var(--shadow), var(--glow);
+  transform: translateY(-3px);
+}
+
+.stat-title {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.stat-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* =========================================
+TABS
+========================================= */
+.tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.tab:hover {
+  background: #1a2230;
+}
+
+.tab.active {
+  background: var(--primary);
+  color: black;
+  border-color: var(--primary);
+}
+
+/* =========================================
+CONTEÚDO DAS ABAS
+========================================= */
+.tab-content {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tab-content.active {
+  display: flex;
+}
+
+/* =========================================
+CARD LISTA (CARTÕES / GASTOS / RENDAS)
+========================================= */
+.user-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 16px;
+  border-radius: var(--radius);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: 0.2s;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.user-item:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.user-main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.user-name {
+  font-weight: 600;
+}
+
+.user-meta {
+  font-size: 0.8rem;
+  color: var(--muted);
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* =========================================
+PAGINAÇÃO
+========================================= */
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.pagination a {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--text);
+  font-size: 0.8rem;
+  transition: 0.2s;
+}
+
+.pagination a:hover {
+  background: var(--primary);
+  color: black;
+}
+
+.page-info {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* =========================================
+RESPONSIVO
+========================================= */
+@media (max-width: 900px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    height: 100%;
+    transition: 0.3s;
+    z-index: 999;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  .main {
+    padding: 18px;
+  }
+
+  .user-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+.stat-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+
+  /* 👇 ESSA PARTE RESOLVE */
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
