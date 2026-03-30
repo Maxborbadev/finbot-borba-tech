@@ -247,6 +247,8 @@ def processar_mensagem(whatsapp_id, mensagem):
         #                                       COMANDOS DO FINBOT
         # ========================================================================================
         if mensagem.startswith("/"):
+            mensagem = "/" + mensagem[1:].strip()
+
             # ===============================
             #       COMANDOS FREE
             # ===============================
