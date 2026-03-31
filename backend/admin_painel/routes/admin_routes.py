@@ -80,7 +80,7 @@ def painel():
         """
         SELECT COUNT(*)
         FROM usuarios
-        WHERE plano IN ('basic', 'premium')
+        WHERE plano IN ('BASIC', 'PREMIUM')
         AND plano_expira_em <= DATE('now','+7 day')
         """
     ).fetchone()[0]
