@@ -1,15 +1,15 @@
 from db.database import get_connection
 from models.usuario import buscar_usuario_por_uuid
 from datetime import datetime
-
-
-
+from datetime import datetime
+from db.database import get_connection
+from models.usuario import buscar_usuario_por_uuid
 
 
 def obter_plano_dados(usuario_uuid):
     usuario = buscar_usuario_por_uuid(usuario_uuid)
 
-    plano_nome = usuario["plano"].lower()
+    plano_nome = usuario["plano"].upper()
     expira = usuario["plano_expira_em"]
 
     # 🔥 VERIFICA EXPIRAÇÃO
@@ -17,16 +17,19 @@ def obter_plano_dados(usuario_uuid):
         data_expira = datetime.fromisoformat(expira)
 
         if datetime.now() > data_expira:
-            plano_nome = "free"
+            plano_nome = "FREE"
 
     conn = get_connection()
     cursor = conn.cursor()
 
-    cursor.execute("""
+    cursor.execute(
+        """
         SELECT *
         FROM planos
-        WHERE LOWER(nome) = ?
-    """, (plano_nome,))
+        WHERE nome = ?
+    """,
+        (plano_nome,),
+    )
 
     plano = cursor.fetchone()
     conn.close()
@@ -54,22 +57,22 @@ def pode_usar_grafico(usuario_uuid):
     plano = obter_plano_dados(usuario_uuid)
     return plano and plano["pode_grafico"] == 1
 
+
 def sincronizar_plano(usuario_uuid):
     usuario = buscar_usuario_por_uuid(usuario_uuid)
 
-    plano = usuario["plano"]
     expira = usuario["plano_expira_em"]
 
-    from datetime import datetime
-
-    novo_plano = "free"
-
+    # 🔥 REGRA CORRETA
     if expira:
         data_expira = datetime.fromisoformat(expira)
 
         if datetime.now() <= data_expira:
-            # mantém plano atual
-            novo_plano = plano
+            novo_plano = "PREMIUM"
+        else:
+            novo_plano = "FREE"
+    else:
+        novo_plano = "FREE"
 
     conn = get_connection()
     conn.execute(
