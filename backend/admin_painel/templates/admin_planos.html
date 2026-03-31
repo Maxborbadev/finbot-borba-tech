@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>FinBot • Planos</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin_painel.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='admin_planos.css') }}">
+  </head>
+
+  <body>
+    <div class="dashboard">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="logo">⭐ FinBot</div>
+
+        <nav class="menu">
+          <a href="/painel">📊 Dashboard</a>
+          <a href="/admin/usuarios">👥 Usuários</a>
+          <a href="/planos" class="active">⭐ Planos</a>
+        </nav>
+
+        <a class="logout" href="/logout">🚪 Sair</a>
+      </aside>
+
+      <!-- MAIN -->
+      <main class="main">
+        <header class="header">
+          <h1>Gerenciar Planos</h1>
+        </header>
+
+        <!-- LISTA DE PLANOS -->
+        <section class="users">
+          <div class="section-header">
+            <h2>Planos disponíveis</h2>
+          </div>
+
+          <div class="user-list">
+            {% for plano in planos %}
+
+            <form method="POST" action="/admin/planos/editar/{{ plano.id }}" class="user-item">
+
+              <!-- CSRF -->
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+              <div class="user-main">
+                <div class="user-name">{{ plano.nome }}</div>
+
+                <div class="user-meta">
+                  <span>
+                    📊 Limite:
+                    <input
+                      type="number"
+                      name="limite"
+                      value="{{ plano.limite_mensal }}"
+                      style="width: 80px"
+                    />
+                  </span>
+
+                  <span>
+                    💰 Preço:
+                    <input
+                      type="number"
+                      step="0.01"
+                      name="preco"
+                      value="{{ plano.preco }}"
+                      style="width: 80px"
+                    />
+                  </span>
+
+                  <span>
+                    💳 Cartão:
+                    <input
+                      type="checkbox"
+                      name="pode_cartao"
+                      {% if plano.pode_cartao %}checked{% endif %}
+                    />
+                  </span>
+
+                  <span>
+                    📅 Conta fixa:
+                    <input
+                      type="checkbox"
+                      name="pode_conta_fixa"
+                      {% if plano.pode_conta_fixa %}checked{% endif %}
+                    />
+                  </span>
+
+                  <span>
+                    📈 Gráfico:
+                    <input
+                      type="checkbox"
+                      name="pode_grafico"
+                      {% if plano.pode_grafico %}checked{% endif %}
+                    />
+                  </span>
+                </div>
+              </div>
+
+              <div class="user-actions">
+                <button type="submit" class="btn">💾 Salvar</button>
+              </div>
+
+            </form>
+
+            {% endfor %}
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

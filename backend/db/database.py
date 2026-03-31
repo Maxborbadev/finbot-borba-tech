@@ -269,6 +269,21 @@ CREATE TABLE IF NOT EXISTS gastos_cartao (
     """
     )
 
+    # ---------------- PLANOS ----------------
+    cursor.execute(
+        """
+    CREATE TABLE IF NOT EXISTS planos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT UNIQUE,
+        limite_mensal INTEGER,
+        pode_cartao INTEGER DEFAULT 0,
+        pode_conta_fixa INTEGER DEFAULT 0,
+        pode_grafico INTEGER DEFAULT 0,
+        preco REAL DEFAULT 0
+    );
+    """
+    )
+
     # ---------------- RECUPERAÇÃO SENHA ----------------
     cursor.execute(
         """
@@ -299,9 +314,42 @@ CREATE TABLE IF NOT EXISTS gastos_cartao (
 
     garantir_coluna(conn, "gastos_cartao", "categoria", "TEXT")
     garantir_coluna(conn, "usuarios", "origem_premium", "TEXT")
+
+    # ---------------- PLANOS PADRÃO ----------------
+    cursor.execute("""
+    INSERT OR IGNORE INTO planos (nome, limite_mensal, pode_cartao, pode_conta_fixa, pode_grafico, preco)
+    VALUES ('FREE', 10, 0, 0, 0, 0)
+    """)
+
+    cursor.execute("""
+    INSERT OR IGNORE INTO planos (nome, limite_mensal, pode_cartao, pode_conta_fixa, pode_grafico, preco)
+    VALUES ('BASIC', 100, 1, 1, 1, 6.99)
+    """)
+
+    cursor.execute("""
+    INSERT OR IGNORE INTO planos (nome, limite_mensal, pode_cartao, pode_conta_fixa, pode_grafico, preco)
+    VALUES ('PREMIUM', 999999, 1, 1, 1, 15.00)
+    """)
+
+    # Atualiza preços caso já existam
+    cursor.execute("UPDATE planos SET preco = 6.99 WHERE nome = 'BASIC'")
+    cursor.execute("UPDATE planos SET preco = 15.00 WHERE nome = 'PREMIUM'")
+
+    # ---------------- CORRIGIR PLANOS DOS USUÁRIOS ----------------
+
+    # Padroniza nomes
+    cursor.execute("UPDATE usuarios SET plano = 'FREE' WHERE plano = 'Free'")
+    cursor.execute("UPDATE usuarios SET plano = 'BASIC' WHERE plano = 'Basic'")
+    cursor.execute("UPDATE usuarios SET plano = 'PREMIUM' WHERE plano = 'Premium'")
+
+    # Garante que ninguém fique sem plano válido
+    cursor.execute("""
+    UPDATE usuarios
+    SET plano = 'FREE'
+    WHERE plano IS NULL OR plano NOT IN ('FREE', 'BASIC', 'PREMIUM')
+    """)
     conn.commit()
     conn.close()
-
 
 # ======================================================
 # CRIA ADMIN PADRÃO (SE NÃO EXISTIR)

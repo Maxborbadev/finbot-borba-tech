@@ -42,7 +42,7 @@
         <nav class="menu">
           <a class="active">📊 Dashboard</a>
           <a href="/admin/usuarios">👥 Usuários</a>
-          <a>⭐ Planos</a>
+          <a href="/planos">⭐ Planos</a>
           <a>💳 Assinaturas</a>
           <a>📈 Financeiro</a>
           <a>⚙️ Configurações</a>
@@ -147,7 +147,6 @@
         </section>
 
         <section class="admin-tools">
-
           <a href="/admin/aviso">
             <button class="tool">📢 Enviar aviso</button>
           </a>
@@ -155,7 +154,6 @@
           <button id="btnPremiumHoje" class="tool">
             🎁 7 dias grátis (novos usuários)
           </button>
-          
         </section>
 
         <!-- LISTA DE USUÁRIOS -->
@@ -186,23 +184,42 @@
 
                 <div class="user-meta">
                   <span>📱 {{ u.whatsapp_id or '—' }}</span>
-
                   {% if u.status == 'bloqueado' %}
-                  <span class="badge bloqueado">Bloqueado</span>
+
+                    <span class="badge bloqueado">Bloqueado</span>
+
                   {% else %}
-                  <span class="badge ativo">Ativo</span>
-                  {% endif %} {% if u.plano == 'premium' %}
 
-                  <span class="badge premium">Premium</span>
+                    <span class="badge ativo">Ativo</span>
 
-                  {% if u.expira_formatado %}
-                  <span class="expire">
-                    expira em {{ u.expira_formatado }} • {{ u.dias_restantes }}
-                    dias
-                  </span>
-                  {% endif %} {% else %}
-                  <span class="badge free">Free</span>
+                    {% if u.plano|lower == 'premium' %}
+
+                      <span class="badge premium">Premium</span>
+
+                      {% if u.expira_formatado %}
+                      <span class="expire">
+                        expira em {{ u.expira_formatado }} • {{ u.dias_restantes }} dias
+                      </span>
+                      {% endif %}
+
+                    {% elif u.plano|lower == 'basic' %}
+
+                      <span class="badge basic">Basic</span>
+
+                      {% if u.expira_formatado %}
+                      <span class="expire">
+                        expira em {{ u.expira_formatado }} • {{ u.dias_restantes }} dias
+                      </span>
+                      {% endif %}
+
+                    {% else %}
+
+                      <span class="badge free">Free</span>
+
+                    {% endif %}
+
                   {% endif %}
+                  
                 </div>
               </div>
 

@@ -80,7 +80,7 @@ def painel():
         """
         SELECT COUNT(*)
         FROM usuarios
-        WHERE plano = 'premium'
+        WHERE plano IN ('basic', 'premium')
         AND plano_expira_em <= DATE('now','+7 day')
         """
     ).fetchone()[0]
@@ -98,10 +98,18 @@ def painel():
     ).fetchone()[0]
 
     # ----------------------------
-    # RECEITA ESTIMADA
+    # RECEITA REAL (PAGAMENTOS)
     # ----------------------------
 
-    receita = round(premium * 6.99, 2)
+    receita = db.execute(
+        """
+        SELECT SUM(valor)
+        FROM pagamentos
+        WHERE status = 'aprovado'
+        """
+    ).fetchone()[0] or 0
+
+    receita = round(receita, 2)
 
     db.close()
 
@@ -371,7 +379,7 @@ def admin_usuarios():
     # contadores
     total = len(usuarios)
 
-    premium = sum(1 for u in usuarios if u["plano"] == "premium")
+    premium = sum(1 for u in usuarios if u["plano"] in ("basic", "premium"))
 
     bloqueados = sum(1 for u in usuarios if u["status"] == "bloqueado")
 
@@ -385,6 +393,55 @@ def admin_usuarios():
         bloqueados=bloqueados,
     )
 
+# ======================================================
+# PLANOS
+# ======================================================
+@admin_bp.route("/planos")
+@admin_required
+def admin_planos():
+
+    db = get_db()
+
+    planos = db.execute("""
+        SELECT *
+        FROM planos
+        ORDER BY id
+    """).fetchall()
+
+    db.close()
+
+    return render_template("admin_planos.html", planos=planos)
+# ======================================================
+# EDITAR PLANOS 
+# ======================================================
+@admin_bp.route("/admin/planos/editar/<int:plano_id>", methods=["POST"])
+@csrf.exempt
+@admin_required
+def editar_plano(plano_id):
+
+    limite = request.form.get("limite")
+    preco = request.form.get("preco")
+
+    pode_cartao = 1 if request.form.get("pode_cartao") == "on" else 0
+    pode_conta_fixa = 1 if request.form.get("pode_conta_fixa") == "on" else 0
+    pode_grafico = 1 if request.form.get("pode_grafico") == "on" else 0
+
+    db = get_db()
+
+    db.execute("""
+        UPDATE planos
+        SET limite_mensal = ?,
+            preco = ?,
+            pode_cartao = ?,
+            pode_conta_fixa = ?,
+            pode_grafico = ?
+        WHERE id = ?
+    """, (limite, preco, pode_cartao, pode_conta_fixa, pode_grafico, plano_id))
+
+    db.commit()
+    db.close()
+
+    return redirect(url_for("admin.admin_planos"))
 
 @admin_bp.route("/resetar_cartao/<uuid>")
 @admin_required

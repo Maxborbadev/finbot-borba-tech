@@ -14,7 +14,7 @@ from services.categoria_auto import listar_categorias_auto
 from services.conta_fixa_service import listar_contas_fixas, total_contas_fixas_mes
 from services.cartao import calcular_faturas_cartao
 from services.conta_fixa_service import remover_conta_fixa
-from services.permissoes import usuario_premium
+from services.permissoes import pode_usar_grafico
 
 usuario_bp = Blueprint("usuario", __name__)
 
@@ -43,7 +43,7 @@ def usuario_painel():
     usuario = dict(usuario)
 
     # verificar se premium
-    if not usuario_premium(usuario["plano"]):
+    if not pode_usar_grafico(usuario["uuid"]):
         return render_template("bloqueado.html", usuario=usuario)
 
     # calcular dias restantes

@@ -37,7 +37,7 @@
         <nav class="menu">
           <a href="/painel">📊 Dashboard</a>
           <a href="/admin/usuarios" class="active">👥 Usuários</a>
-          <a href="#">⭐ Planos</a>
+          <a href="/planos">⭐ Planos</a>
           <a href="#">💳 Assinaturas</a>
           <a href="#">📈 Financeiro</a>
           <a href="#">⚙️ Configurações</a>
@@ -121,13 +121,27 @@
                   <span>📱 {{ u.whatsapp_id or '—' }}</span>
 
                   {% if u.status == 'bloqueado' %}
-                  <span class="badge bloqueado">Bloqueado</span>
+
+                    <span class="badge bloqueado">Bloqueado</span>
+
                   {% else %}
-                  <span class="badge ativo">Ativo</span>
-                  {% endif %} {% if u.plano == 'premium' %}
-                  <span class="badge premium">Premium</span>
-                  {% else %}
-                  <span class="badge free">Free</span>
+
+                    <span class="badge ativo">Ativo</span>
+
+                    {% if u.plano|lower == 'premium' %}
+
+                      <span class="badge premium">Premium</span>
+
+                    {% elif u.plano|lower == 'basic' %}
+
+                      <span class="badge basic">Basic</span>
+
+                    {% else %}
+
+                      <span class="badge free">Free</span>
+
+                    {% endif %}
+
                   {% endif %}
                 </div>
               </div>
@@ -236,8 +250,7 @@
             }
 
             if (filtro === "premium") {
-              user.style.display = plano === "premium" ? "flex" : "none";
-              return;
+              user.style.display = (plano === "premium" || plano === "basic") ? "flex" : "none";
             }
 
             if (filtro === "free") {

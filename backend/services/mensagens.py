@@ -396,9 +396,11 @@ def msg_plano_premium_ativado(expira):
         "⚠️ Quando seu plano estiver próximo de expirar, avisaremos você automaticamente.\n\n"
         "🚀 Obrigado por apoiar o FinBot"
     )
-#===================================
-#mensagem de premium de 7 dias ativado
-#====================================
+
+
+# ===================================
+# mensagem de premium de 7 dias ativado
+# ====================================
 def msg_premium_gratis_7_dias(expira):
 
     dias_restantes = (expira - datetime.now()).days
@@ -419,6 +421,7 @@ def msg_premium_gratis_7_dias(expira):
         "💎 Depois, você pode ativar o plano completo a qualquer momento.\n\n"
         "🚀 Aproveite o FinBot!"
     )
+
 
 # ============================================
 # AVISO DE CONTA VENCENDO (AUTO)
@@ -444,3 +447,57 @@ def msg_fatura_cartao_vencendo(nome_cartao, valor_fatura, dia_venc):
 
 Evite juros pagando até o vencimento 😉
 """
+
+
+# ===========================================
+# mensagem de aviso de limite
+# ===========================================
+def msg_limite_atingido():
+    return (
+        "🚫 *Limite atingido!*\n\n"
+        "Você usou todos os *10 lançamentos* do plano FREE.\n\n"
+        "🚀 *Não fique travado!*\n\n"
+        "💎 *Plano BASIC — R$ 6,99*\n"
+        "• 100 lançamentos por mês\n"
+        "• Cartões + contas fixas\n"
+        "• Gráficos completos\n\n"
+        "👉 Digite */upgrade* e continue usando agora"
+    )
+
+
+def msg_aviso_limite():
+    return (
+        "⚠️ *Atenção!*\n\n"
+        "Você está quase atingindo o limite do plano FREE.\n"
+        "Faltam apenas *3 lançamentos* este mês.\n\n"
+        "🚀 *Evite ficar travado!*\n\n"
+        "💎 BASIC — R$ 6,99\n"
+        "• 100 lançamentos por mês\n\n"
+        "👉 Digite */upgrade* e garanta mais lançamentos"
+    )
+
+
+def msg_plano_basic_ativado(expira):
+
+    from datetime import datetime
+
+    dias_restantes = (expira - datetime.now()).days
+
+    return (
+        "💎 *FINBOT BASIC ATIVADO*\n"
+        "━━━━━━━━━━━━━━━━━━\n\n"
+        "🎉 *Pagamento confirmado!*\n"
+        "Seu *FinBot BASIC* foi ativado com sucesso.\n\n"
+        f"📅 *Plano ativo até:* {expira.strftime('%d/%m/%Y')}\n"
+        f"⏳ *Dias restantes:* {dias_restantes}\n\n"
+        "Agora você tem acesso a:\n"
+        "✔ 100 lançamentos por mês\n"
+        "✔ Controle de cartões de crédito\n"
+        "✔ Contas fixas\n"
+        "✔ Gráficos financeiros\n"
+        "✔ Painel web\n\n"
+        "🚀 Continue organizando sua vida financeira!\n"
+        "⚠️ Quando seu plano estiver próximo de expirar, avisaremos você automaticamente.\n\n"
+        "💰 Quer ir além?\n"
+        "O *Premium* libera tudo sem limites!"
+    )

@@ -3,12 +3,15 @@ import re
 from utils.formatters import parse_valor, dinheiro
 from services import mensagens
 from services.categoria_auto import detectar_categoria
+from datetime import datetime
+from db.database import get_connection
 
 from models.usuario import buscar_usuario_por_uuid
 from models.gasto import registrar_gasto
 from models.renda import registrar_renda
-
+from services.mensagens import msg_limite_atingido, msg_aviso_limite
 from services.comandos.cartao import processar_cartao
+
 
 PALAVRAS_GASTO = [
     "gastei",
@@ -24,6 +27,47 @@ PALAVRAS_RENDA = [
     "ganho",
     "recebido",
 ]
+
+
+def contar_lancamentos_mes(usuario_uuid):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    agora = datetime.now()
+    mes = agora.month
+    ano = agora.year
+
+    # Contar gastos (compras)
+    cursor.execute(
+        """
+        SELECT COUNT(*) as total
+        FROM compras
+        WHERE usuario_uuid = ?
+        AND strftime('%m', data) = ?
+        AND strftime('%Y', data) = ?
+    """,
+        (usuario_uuid, f"{mes:02d}", str(ano)),
+    )
+
+    total_gastos = cursor.fetchone()["total"]
+
+    # Contar rendas
+    cursor.execute(
+        """
+        SELECT COUNT(*) as total
+        FROM rendas
+        WHERE usuario_uuid = ?
+        AND strftime('%m', data) = ?
+        AND strftime('%Y', data) = ?
+    """,
+        (usuario_uuid, f"{mes:02d}", str(ano)),
+    )
+
+    total_rendas = cursor.fetchone()["total"]
+
+    conn.close()
+
+    return total_gastos + total_rendas
 
 
 def detectar_valor(texto):
@@ -71,6 +115,38 @@ def extrair_descricao(texto_original):
 def processar_lancamento(
     usuario_uuid, mensagem, mensagem_original, buscar_cartao_ativo
 ):
+    # =========================
+    # CONTROLE DE LIMITE POR PLANO
+    # =========================
+    usuario = buscar_usuario_por_uuid(usuario_uuid)
+    plano = usuario["plano"]
+
+    from db.database import get_connection
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT * FROM planos WHERE nome = ?", (plano,))
+    plano_dados = cursor.fetchone()
+    conn.close()
+
+    # Segurança: se não achar plano
+    if not plano_dados:
+        limite = 10  # fallback FREE
+    else:
+        limite = plano_dados["limite_mensal"]
+
+    total = contar_lancamentos_mes(usuario_uuid)
+
+    # BLOQUEIO
+    if total >= limite:
+        return msg_limite_atingido()
+
+    # AVISO (faltando 3)
+    restantes = limite - total
+    aviso_limite = None
+
+    if restantes == 3:
+        aviso_limite = msg_aviso_limite()
 
     # =========================
     # COMANDO CARTAO
@@ -131,9 +207,14 @@ def processar_lancamento(
 
         saldo_atual = usuario_atualizado["saldo"]
 
-        return mensagens.msg_renda_registrada(
+        resposta = mensagens.msg_renda_registrada(
             descricao, dinheiro(valor), dinheiro(saldo_atual)
         )
+
+        if aviso_limite:
+            resposta += "\n\n" + aviso_limite
+
+        return resposta
 
     # =========================
     # GASTO
@@ -148,6 +229,11 @@ def processar_lancamento(
 
         saldo_atual = usuario_atualizado["saldo"]
 
-        return mensagens.msg_gasto_registrado(
+        resposta = mensagens.msg_gasto_registrado(
             descricao, categoria, dinheiro(valor), dinheiro(saldo_atual)
         )
+
+        if aviso_limite:
+            resposta += "\n\n" + aviso_limite
+
+        return resposta

@@ -20,11 +20,17 @@ from models.usuario import (
 # SERVICES
 # =========================================================
 from services import mensagens
-from services.permissoes import usuario_premium
+from services.permissoes import (
+    usuario_premium,
+    pode_usar_cartao,
+    pode_usar_conta_fixa,
+    pode_usar_grafico,
+)
 from services.mensagens_erro import erro_comando_nao_reconhecido
 from services.lancamentos import processar_lancamento
 from services.detector_intencao import eh_registro_gasto, eh_registro_renda
 from services.categoria_auto import detectar_categoria
+from services.estados.upgrade import estado_escolhendo_plano
 from services.estados.cadastro import estado_novo
 from services.estados.recuperacao import estado_aguardando_recuperacao_email
 from services.estados.cadastro import (
@@ -51,7 +57,7 @@ from services.estados.cartao import (
 # =========================================================
 # COMANDOS
 # =========================================================
-from services.comandos.upgrade import comando_upgrade
+from services.comandos.upgrade import comando_upgrade, comando_upgrade_escolha
 from utils.whatsapp import enviar_whatsapp_documento
 from services.comandos.painel import comando_painel
 from services.comandos.cofrinho import comando_cofrinho
@@ -156,6 +162,22 @@ def processar_mensagem(whatsapp_id, mensagem):
     usuario_uuid, plano = get_or_create_user(whatsapp_id)
     usuario = buscar_usuario_por_uuid(usuario_uuid)
 
+    # 🔹 BUSCAR DADOS DO PLANO REAL
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+    SELECT *
+    FROM planos
+    WHERE nome = ?
+    """,
+        (usuario["plano"],),
+    )
+
+    plano_dados = cursor.fetchone()
+    conn.close()
+
     estado = usuario["estado"]
 
     # ========================
@@ -217,6 +239,10 @@ def processar_mensagem(whatsapp_id, mensagem):
 
     if estado == "aguardando_recuperacao_email":
         return estado_aguardando_recuperacao_email(usuario_uuid, mensagem_original)
+    if estado == "escolhendo_plano":
+        from services.estados.upgrade import estado_escolhendo_plano
+
+        return estado_escolhendo_plano(usuario_uuid, mensagem, usuario)
 
     # ─────────────────────────
     # ATIVO
@@ -269,6 +295,7 @@ def processar_mensagem(whatsapp_id, mensagem):
                 return resposta
 
             if mensagem == "/plano":
+                usuario = buscar_usuario_por_uuid(usuario_uuid)
                 return comando_plano(usuario_uuid)
 
             if mensagem == "/upgrade":
@@ -294,32 +321,32 @@ def processar_mensagem(whatsapp_id, mensagem):
             # ===============================
 
             if mensagem.startswith("/painel"):
-                if not usuario_premium(plano):
+                if not pode_usar_grafico(usuario_uuid):
                     return mensagens.msg_plano_pago()
                 return comando_painel()
             # =================================================
             if mensagem in ["/senha", "/recuperar", "/recuperarsenha"]:
-                if not usuario_premium(plano):
+                if not pode_usar_grafico(usuario_uuid):
                     return mensagens.msg_plano_pago()
                 return comando_recuperar_senha(usuario_uuid)
             # =================================================
             if mensagem in ["/avancado", "/avançado"]:
-                if not usuario_premium(plano):
+                if not pode_usar_grafico(usuario_uuid):
                     return mensagens.msg_plano_pago()
                 return comando_relatorio_avancado(usuario_uuid)
             # =================================================
             if mensagem.startswith("/contafixa"):
-                if not usuario_premium(plano):
+                if not pode_usar_conta_fixa(usuario_uuid):
                     return mensagens.msg_plano_pago()
                 return comando_conta_fixa(usuario_uuid, mensagem_original)
             # =================================================
             if mensagem == "/fixas":
-                if not usuario_premium(plano):
+                if not pode_usar_conta_fixa(usuario_uuid):
                     return mensagens.msg_plano_pago()
                 return comando_listar_contas(usuario_uuid)
             # =================================================
             if mensagem.startswith("/removerconta"):
-                if not usuario_premium(plano):
+                if not pode_usar_conta_fixa(usuario_uuid):
                     return mensagens.msg_plano_pago()
                 return comando_remover_conta(usuario_uuid, mensagem)
             # =================================================
@@ -334,17 +361,17 @@ def processar_mensagem(whatsapp_id, mensagem):
                 return comando_ajustar_salario(usuario_uuid)
             # =================================================
             if mensagem == "/novocartao":
-                if not usuario_premium(plano):
+                if not pode_usar_cartao(usuario_uuid):
                     return mensagens.msg_plano_pago()
                 return comando_novo_cartao(usuario_uuid)
             # =================================================
             if mensagem == "/cartoes":
-                if not usuario_premium(plano):
+                if not pode_usar_cartao(usuario_uuid):
                     return mensagens.msg_plano_pago()
                 return comando_listar_cartoes(usuario_uuid, listar_cartoes)
             # =================================================
             if mensagem == "/cartao":
-                if not usuario_premium(plano):
+                if not pode_usar_cartao(usuario_uuid):
                     return mensagens.msg_plano_pago()
                 return comando_info_cartao()
             # =================================================

@@ -41,17 +41,19 @@ def apagar_qr(caminho):
         print("Erro ao apagar QR:", e)
 
 
-def criar_pix(usuario_uuid, email):
+def criar_pix(usuario_uuid, email, plano):
 
     limpar_pagamentos_pendentes(usuario_uuid)
     db = get_connection()
 
-    db.execute("""
+    db.execute(
+        """
         UPDATE pagamentos
         SET status = 'expirado'
         WHERE status = 'pendente'
         AND criado_em < datetime('now', '-30 minutes')
-    """)
+    """
+    )
     db.commit()
 
     pendente = db.execute(
@@ -66,7 +68,9 @@ def criar_pix(usuario_uuid, email):
     db.close()
 
     if pendente:
-        return {"erro": "Você já tem um pagamento PIX pendente. Aguarde ou finalize ele."}
+        return {
+            "erro": "Você já tem um pagamento PIX pendente. Aguarde ou finalize ele."
+        }
 
     limpar_qr_expirados()
 
@@ -74,13 +78,21 @@ def criar_pix(usuario_uuid, email):
         "%Y-%m-%dT%H:%M:%S.000Z"
     )
 
+    if plano == "BASIC":
+        valor = 6.99
+    elif plano == "PREMIUM":
+        valor = 15.00
+    else:
+        return {"erro": "Plano inválido"}
+
     payment_data = {
-        "transaction_amount": 6.99,
-        "description": "FinBot Premium",
+        "transaction_amount": valor,
+        "description": f"FinBot {plano}",
         "payment_method_id": "pix",
         "external_reference": usuario_uuid,
         "date_of_expiration": expiration,
         "payer": {"email": email},
+        "notification_url": "https://finbotbyborbatech.com/webhook/mercadopago"
     }
 
     payment = sdk.payment().create(payment_data)

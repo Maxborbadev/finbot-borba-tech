@@ -295,6 +295,12 @@ body {
   border-color: rgba(148, 163, 184, 0.2);
   color: #94a3b8;
 }
+.badge.basic {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.4);
+  color: #60a5fa;
+}
+
 
 /* =========================================
    BUTTONS
