@@ -28,13 +28,15 @@ def processar_pagamento(payment_id):
     db.execute(
         """
         UPDATE pagamentos
-        SET status = 'aprovado'
+        SET status = 'aprovado',
+            valor = ?
         WHERE payment_id = ?
         """,
-        (payment_id,),
+        (valor, payment_id),
     )
 
     db.commit()
+    db.close()
 
     usuario_uuid = pagamento.get("external_reference")
 

@@ -65,8 +65,7 @@ def total_premium():
         """
         SELECT COUNT(*) 
         FROM usuarios 
-        WHERE plano = 'premium'
-        AND origem_premium = 'pago'
+        WHERE plano IN ('BASIC', 'PREMIUM')
         """
     )
 
