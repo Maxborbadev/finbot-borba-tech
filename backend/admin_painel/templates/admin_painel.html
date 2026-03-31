@@ -192,7 +192,7 @@
 
                     <span class="badge ativo">Ativo</span>
 
-                    {% if u.plano|lower == 'premium' %}
+                    {% if u.plano == 'PREMIUM' %}
 
                       <span class="badge premium">Premium</span>
 
@@ -202,7 +202,7 @@
                       </span>
                       {% endif %}
 
-                    {% elif u.plano|lower == 'basic' %}
+                    {% elif u.plano == 'BASIC' %}
 
                       <span class="badge basic">Basic</span>
 
@@ -236,7 +236,7 @@
                   <button class="btn desbloquear">🔓 Desbloquear</button>
                 </a>
 
-                {% else %} {% if u.plano == 'premium' %}
+                {% else %} {% if u.plano == 'PREMIUM' %}
 
                 <a href="/remover_premium/{{ u.uuid }}">
                   <button class="btn remover">⛔ Remover</button>
