@@ -118,16 +118,13 @@ def processar_lancamento(
     # =========================
     # CONTROLE DE LIMITE POR PLANO
     # =========================
-    usuario = buscar_usuario_por_uuid(usuario_uuid)
-    plano = usuario["plano"]
+    from services.permissoes import obter_plano_dados
+
+    plano_dados = obter_plano_dados(usuario_uuid)
 
     from db.database import get_connection
     conn = get_connection()
     cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM planos WHERE nome = ?", (plano,))
-    plano_dados = cursor.fetchone()
-    conn.close()
 
     # Segurança: se não achar plano
     if not plano_dados:

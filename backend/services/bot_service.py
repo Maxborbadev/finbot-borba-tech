@@ -159,7 +159,11 @@ def processar_mensagem(whatsapp_id, mensagem):
     mensagem = unicodedata.normalize("NFKD", mensagem_original)
     mensagem = mensagem.encode("ASCII", "ignore").decode("ASCII").lower()
 
-    usuario_uuid, plano = get_or_create_user(whatsapp_id)
+    usuario_uuid, _ = get_or_create_user(whatsapp_id)
+
+    from services.permissoes import sincronizar_plano
+    sincronizar_plano(usuario_uuid)
+
     usuario = buscar_usuario_por_uuid(usuario_uuid)
 
     # 🔹 BUSCAR DADOS DO PLANO REAL
@@ -351,12 +355,12 @@ def processar_mensagem(whatsapp_id, mensagem):
                 return comando_remover_conta(usuario_uuid, mensagem)
             # =================================================
             if mensagem in ["/att saldo", "/attsaldo", "/ajustarsaldo"]:
-                if not usuario_premium(plano):
+                if not pode_usar_grafico(usuario_uuid):
                     return mensagens.msg_plano_pago()
                 return comando_ajustar_saldo(usuario_uuid)
             # =================================================
             if mensagem in ["/att salario", "/attsalario", "/ajustarsalario"]:
-                if not usuario_premium(plano):
+                if not pode_usar_grafico(usuario_uuid):
                     return mensagens.msg_plano_pago()
                 return comando_ajustar_salario(usuario_uuid)
             # =================================================
@@ -376,7 +380,7 @@ def processar_mensagem(whatsapp_id, mensagem):
                 return comando_info_cartao()
             # =================================================
             if mensagem == "/fatura":
-                if not usuario_premium(plano):
+                if not pode_usar_grafico(usuario_uuid):
                     return mensagens.msg_plano_pago()
 
                 msg, pdf = comando_fatura(usuario_uuid)
