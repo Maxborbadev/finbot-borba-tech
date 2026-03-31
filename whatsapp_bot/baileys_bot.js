@@ -105,13 +105,8 @@ async function startBot() {
 
       if (!texto) return;
 
-      const jid = msg.key.participant || msg.key.remoteJid;
-
-        // extrai só o número (remove @lid, @s.whatsapp.net, etc)
-        const telefone = jid.split("@")[0];
-
-        // mantém o chatId original pra responder
-        const chatId = msg.key.remoteJid;
+      const chatId = msg.key.remoteJid;
+      const telefone = chatId.replace("@s.whatsapp.net", "");
 
       console.log("📩 Mensagem recebida:", texto);
 
