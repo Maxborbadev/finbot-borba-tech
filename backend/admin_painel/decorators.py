@@ -6,7 +6,7 @@ def login_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if "usuario_uuid" not in session and "admin_uuid" not in session:
-            return redirect(url_for("login"))
+            return redirect(url_for("auth.login"))
         return func(*args, **kwargs)
 
     return wrapper
@@ -16,7 +16,7 @@ def usuario_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if "usuario_uuid" not in session:
-            return redirect(url_for("login"))
+            return redirect(url_for("auth.login"))
         return func(*args, **kwargs)
 
     return wrapper
@@ -26,7 +26,7 @@ def admin_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         if "admin_uuid" not in session:
-            return redirect(url_for("login"))
+            return redirect(url_for("auth.login"))
         return func(*args, **kwargs)
 
     return wrapper
