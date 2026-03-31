@@ -74,6 +74,23 @@ def total_premium():
     conn.close()
     return total
 
+# ─────────────────────────────
+# TOTAL BASIC
+# ─────────────────────────────
+def total_basic():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM usuarios
+        WHERE plano = 'BASIC'
+    """)
+
+    total = cursor.fetchone()[0]
+
+    conn.close()
+    return total
 
 # ─────────────────────────────
 # RESUMO DO USUÁRIO

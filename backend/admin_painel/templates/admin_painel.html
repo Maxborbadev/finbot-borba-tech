@@ -89,6 +89,14 @@
 
           <div class="stat-card">
             <div class="stat-header">
+              <span class="icon primary">💎</span>
+              <span class="stat-title">Basic</span>
+            </div>
+            <div class="stat-value">{{ basic }}</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-header">
               <span class="icon success">🟢</span>
               <span class="stat-title">Ativos hoje</span>
             </div>
@@ -116,7 +124,7 @@
               <span class="icon success">💰</span>
               <span class="stat-title">Receita estimada</span>
             </div>
-            <div class="stat-value">R$ {{ receita }}</div>
+            <div class="stat-value">R$ {{ receita|dinheiro }}</div>
           </div>
 
           <div class="stat-card">

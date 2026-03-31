@@ -7,7 +7,7 @@ from db.database import get_connection
 from utils.whatsapp import enviar_whatsapp
 from services.admin_service import (
     total_gastos_sistema,
-    total_premium,
+    total_premium, total_basic,
     total_rendas_sistema,
     saldo_geral,
 )
@@ -55,10 +55,11 @@ def painel():
             u["dias_restantes"] = None
 
     # ----------------------------
-    # TOTAL PREMIUM
+    # TOTAL PREMIUM /BASIC
     # ----------------------------
 
     premium = total_premium()
+    basic = total_basic()
 
     # ----------------------------
     # NOVOS USUÁRIOS HOJE
@@ -119,6 +120,7 @@ def painel():
         total=len(usuarios),
         free=len([u for u in usuarios if u["plano"] == "FREE"]),
         premium=premium,
+        basic=basic,
         gastos=total_gastos_sistema(),
         rendas=total_rendas_sistema(),
         saldo=saldo_geral(),

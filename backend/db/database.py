@@ -255,10 +255,11 @@ CREATE TABLE IF NOT EXISTS gastos_cartao (
     # ---------------- PAGAMENTOS ----------------
     cursor.execute(
         """
-    CREATE TABLE IF NOT EXISTS pagamentos (
+        CREATE TABLE IF NOT EXISTS pagamentos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         usuario_uuid TEXT NOT NULL,
         payment_id TEXT UNIQUE,
+        valor REAL,
         status TEXT DEFAULT 'pendente',
         criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
 
@@ -314,6 +315,9 @@ CREATE TABLE IF NOT EXISTS gastos_cartao (
 
     garantir_coluna(conn, "gastos_cartao", "categoria", "TEXT")
     garantir_coluna(conn, "usuarios", "origem_premium", "TEXT")
+    garantir_coluna(conn, "usuarios", "origem_premium", "TEXT")
+    garantir_coluna(conn, "pagamentos", "valor", "REAL")
+
 
     # ---------------- PLANOS PADRÃO ----------------
     cursor.execute("""
@@ -393,7 +397,7 @@ def criar_admin_padrao():
                 "admin@finbot.com",
                 generate_password_hash(admin_password),
                 "admin",
-                "Premium",
+                "PREMIUM",
                 agora_brasil_str(),
             ),
         )
