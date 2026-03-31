@@ -117,7 +117,7 @@ def painel():
         "admin_painel.html",
         usuarios=usuarios,
         total=len(usuarios),
-        free=len([u for u in usuarios if u["plano"] == "free"]),
+        free=len([u for u in usuarios if u["plano"] == "FREE"]),
         premium=premium,
         gastos=total_gastos_sistema(),
         rendas=total_rendas_sistema(),
@@ -154,16 +154,16 @@ def enviar_aviso():
             "SELECT whatsapp_id FROM usuarios WHERE status='ativo' AND estado='ativo'"
         ).fetchall()
 
-    elif tipo == "premium":
+    elif tipo == "PREMIUM":
 
         usuarios = db.execute(
-            "SELECT whatsapp_id FROM usuarios WHERE plano='premium' AND status='ativo' AND estado='ativo'"
+            "SELECT whatsapp_id FROM usuarios WHERE plano='PREMIUM' AND status='ativo' AND estado='ativo'"
         ).fetchall()
 
-    elif tipo == "free":
+    elif tipo == "FREE":
 
         usuarios = db.execute(
-            "SELECT whatsapp_id FROM usuarios WHERE plano='free' AND status='ativo' AND estado='ativo'"
+            "SELECT whatsapp_id FROM usuarios WHERE plano='FREE' AND status='ativo' AND estado='ativo'"
         ).fetchall()
 
     elif tipo == "expirando":
@@ -172,7 +172,7 @@ def enviar_aviso():
             """
             SELECT whatsapp_id
             FROM usuarios
-            WHERE plano='premium'
+            WHERE plano='PREMIUM'
             AND status='ativo'
             AND estado='ativo'
             AND plano_expira_em <= DATE('now','+7 day')
@@ -212,7 +212,7 @@ def ativar_premium(uuid):
     db.execute(
         """
         UPDATE usuarios
-        SET plano = 'premium',
+        SET plano = 'PREMIUM',
             plano_expira_em = ?,
             origem_premium = 'gratis'
         WHERE uuid = ?
@@ -243,7 +243,7 @@ def remover_premium(uuid):
     db.execute(
         """
         UPDATE usuarios
-        SET plano = 'free',
+        SET plano = 'FREE',
             plano_expira_em = NULL
         WHERE uuid = ?
         """,
@@ -379,7 +379,7 @@ def admin_usuarios():
     # contadores
     total = len(usuarios)
 
-    premium = sum(1 for u in usuarios if u["plano"] in ("basic", "premium"))
+    premium = sum(1 for u in usuarios if u["plano"] in ("BASIC", "PREMIUM"))
 
     bloqueados = sum(1 for u in usuarios if u["status"] == "bloqueado")
 
@@ -522,7 +522,7 @@ def dar_premium_hoje():
         SELECT uuid, whatsapp_id
         FROM usuarios
         WHERE DATE(data_cadastro) = DATE('now')
-        AND plano != 'premium'
+        AND plano != 'PREMIUM'
         AND origem_premium IS NULL
         """
     ).fetchall()
@@ -535,7 +535,7 @@ def dar_premium_hoje():
         db.execute(
             """
             UPDATE usuarios
-            SET plano = 'premium',
+            SET plano = 'PREMIUM',
                 plano_expira_em = ?,
                 origem_premium = 'gratis'
             WHERE uuid = ?
