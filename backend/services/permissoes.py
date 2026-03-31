@@ -4,7 +4,7 @@ from models.usuario import buscar_usuario_por_uuid
 
 def obter_plano_dados(usuario_uuid):
     usuario = buscar_usuario_por_uuid(usuario_uuid)
-    plano_nome = usuario["plano"]
+    plano_nome = usuario["plano"].lower()
 
     conn = get_connection()
     cursor = conn.cursor()
@@ -12,7 +12,7 @@ def obter_plano_dados(usuario_uuid):
     cursor.execute("""
         SELECT *
         FROM planos
-        WHERE nome = ?
+        WHERE LOWER(nome) = ?
     """, (plano_nome,))
 
     plano = cursor.fetchone()
