@@ -2,7 +2,6 @@ from db.database import get_connection
 from datetime import date, datetime
 import uuid
 from services.categoria_auto import detectar_categoria
-from services.comandos import cartao
 from utils.datetime_utils import agora_brasil
 
 
