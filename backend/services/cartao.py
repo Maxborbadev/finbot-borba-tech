@@ -377,18 +377,20 @@ def calcular_mes_fatura_base(data, dia_fechamento, dia_vencimento):
     mes = data.month
     ano = data.year
 
-    # 1️⃣ ainda não venceu → fatura anterior
-    if data.day <= dia_vencimento:
-        mes -= 1
-        if mes < 1:
-            mes = 12
-            ano -= 1
-
-    # 2️⃣ passou fechamento → próxima fatura
-    elif data.day > dia_fechamento:
+    # 🔥 se já passou fechamento → próxima fatura
+    if data.day > dia_fechamento:
         mes += 1
         if mes > 12:
             mes = 1
             ano += 1
+
+    # 🔥 se ainda está antes do vencimento E não passou fechamento anterior
+    elif data.day <= dia_vencimento:
+        # só volta se ainda estiver no ciclo anterior
+        if dia_vencimento < dia_fechamento:
+            mes -= 1
+            if mes < 1:
+                mes = 12
+                ano -= 1
 
     return mes, ano
