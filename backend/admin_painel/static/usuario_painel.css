@@ -246,7 +246,7 @@ SLIDER CARTÃO
   display: flex;
   transition: transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
   will-change: transform;
-  width: 200%;
+  width: 300%;
 }
 
 .slide {
@@ -265,12 +265,12 @@ SLIDER CARTÃO
 .dot {
   width: 8px;
   height: 8px;
-  background: #ff0000;
+  background: #7a7a7a;
   border-radius: 50%;
 }
 
 .dot.ativo {
-  background: #a54b4b;
+  background: #000000;
 }
 
 /* ============================================================

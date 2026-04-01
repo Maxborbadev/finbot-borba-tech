@@ -29,7 +29,7 @@ def verificar_planos_expirados():
             UPDATE usuarios
             SET plano = 'free',
                 plano_expira_em = NULL
-            WHERE plano = 'premium'
+            WHERE plano = 'PREMIUM'
               AND plano_expira_em IS NOT NULL
               AND plano_expira_em < ?
             """,
@@ -80,7 +80,7 @@ def ativar_premium(usuario_id):
         conn.execute(
             """
             UPDATE usuarios
-            SET plano = 'premium',
+            SET plano = 'PREMIUM',
                 plano_expira_em = ?
             WHERE id = ?
             """,
@@ -117,7 +117,7 @@ def verificar_contas_vencendo():
             JOIN usuarios 
             ON usuarios.uuid = contas_fixas.usuario_uuid
             WHERE contas_fixas.ativa = 1
-            AND usuarios.plano = 'premium'
+            AND usuarios.plano = 'PREMIUM'
             """
         ).fetchall()
 
@@ -160,7 +160,7 @@ def verificar_cartoes_vencendo():
             JOIN usuarios
             ON usuarios.uuid = cartoes.usuario_uuid
             WHERE cartoes.ativo = 1
-            AND usuarios.plano = 'premium'
+            AND usuarios.plano = 'PREMIUM'
             """
         ).fetchall()
 
@@ -199,7 +199,7 @@ def enviar_relatorio_diario():
         FROM usuarios
         WHERE status='ativo'
         AND estado='ativo'
-        AND plano = 'premium'
+        AND plano = 'PREMIUM'
         """
     ).fetchall()
 
@@ -238,7 +238,7 @@ def enviar_relatorio_semanal():
         FROM usuarios
         WHERE status='ativo'
         AND estado='ativo'
-        AND plano = 'premium'
+        AND plano = 'PREMIUM'
         """
     ).fetchall()
 

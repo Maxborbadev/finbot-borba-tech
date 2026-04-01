@@ -46,9 +46,21 @@ def cartoes_painel():
     ).fetchall()
 
     cursor = db.cursor()
+    cursor.execute("""
+    SELECT dia_vencimento
+    FROM cartoes
+    WHERE usuario_uuid = ?
+    AND ativo = 1
+    LIMIT 1
+    """, (session["usuario_uuid"],))
+
+    cartao = cursor.fetchone()
+    dia_vencimento = cartao["dia_vencimento"] if cartao else None
+        
 
     for g in todos:
-        atualizar_parcelas(g, cursor)
+        if dia_vencimento:
+            atualizar_parcelas(g, cursor, dia_vencimento)
 
     db.commit()
 
@@ -77,6 +89,19 @@ def cartoes_painel():
     # ======================================================
 
     faturas = calcular_faturas_cartao(session["usuario_uuid"])
+    # 🔹 pegar dia de vencimento
+    cartao_info = db.execute(
+        """
+        SELECT dia_vencimento
+        FROM cartoes
+        WHERE usuario_uuid = ?
+        AND ativo = 1
+        LIMIT 1
+        """,
+        (session["usuario_uuid"],),
+    ).fetchone()
+
+    dia_vencimento = cartao_info["dia_vencimento"] if cartao_info else ""
 
     # ======================================================
     # 🔹 RENDERIZA
@@ -89,8 +114,9 @@ def cartoes_painel():
         gastos_cartao=gastos,
         total_cartao_atual=faturas["total_atual"],
         total_cartao_proximo=faturas["total_proximo"],
-        fatura_label_atual=faturas["label_atual"],
-        fatura_label_proximo=faturas["label_proximo"],
+        fatura_label_atual=faturas["faturas"][0]["label"],
+        fatura_label_proximo=faturas["faturas"][1]["label"],
+        dia_vencimento=dia_vencimento,
     )
 
 

@@ -39,21 +39,20 @@
 
       <div class="card cartao-slider gasto">
         <div class="slides">
+          {% for f in faturas %}
           <div class="slide">
-            <span>💳 Gastos cartão ({{fatura_label_atual}})</span>
-            <h3 class="negativo valor-cartao"> R$ {{ total_cartao_atual|dinheiro }}</h3>
+            <span>💳 Gastos cartão ({{ f.label }})</span>
+            <h3 class="negativo">R$ {{ f.total|dinheiro }}</h3>
           </div>
-
-          <div class="slide">
-            <span>ㅤ💳 Gastos cartão ({{fatura_label_proximo}})</span>
-            <h3 class="negativo">R$ {{ total_cartao_proximo|dinheiro }}</h3>
-          </div>
+          {% endfor %}
         </div>
 
         <div class="dots">
-          <span class="dot ativo"></span>
-          <span class="dot"></span>
+          {% for f in faturas %}
+          <span class="dot {% if loop.index0 == 0 %}ativo{% endif %}"></span>
+          {% endfor %}
         </div>
+
       </div>
 
       <div class="card renda">

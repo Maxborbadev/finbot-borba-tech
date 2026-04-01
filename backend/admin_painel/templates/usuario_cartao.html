@@ -29,7 +29,7 @@ href="{{ url_for('static', filename='usuario_cartao.css') }}">
       </div>
 
       <div class="total-cartao">
-        <span>Total</span>
+        <span>Fatura {{ fatura_label_atual }} • vence dia {{ dia_vencimento }}</span>
         <h2>R$ {{ total_cartao_atual|dinheiro }}</h2>
       </div>
     </header>

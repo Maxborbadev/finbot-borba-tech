@@ -70,10 +70,7 @@ def usuario_painel():
         categorias=listar_categorias_auto(),
         contas_fixas=listar_contas_fixas(usuario["uuid"]),
         total_fixas=total_contas_fixas_mes(usuario["uuid"]),
-        total_cartao_atual=faturas["total_atual"],
-        total_cartao_proximo=faturas["total_proximo"],
-        fatura_label_atual=faturas["label_atual"],
-        fatura_label_proximo=faturas["label_proximo"],
+        faturas=faturas["faturas"],
     )
 
 

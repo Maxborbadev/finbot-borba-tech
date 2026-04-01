@@ -2,6 +2,7 @@ from db.database import get_connection
 from datetime import date, datetime
 import uuid
 from services.categoria_auto import detectar_categoria
+from utils.datetime_utils import agora_brasil
 
 
 # ================= REGISTRAR GASTOS NO CARTÃO =================
@@ -110,7 +111,7 @@ def registrar_gasto_cartao(
         "valor": valor,
         "parcelas": parcelas,
         "parcelas_pagas": parcelas_pagas,
-        "valor_parcela": valor_parcela
+        "valor_parcela": valor_parcela,
     }
 
 
@@ -232,13 +233,12 @@ def calcular_faturas_cartao(usuario_uuid):
     conn = get_connection()
     cursor = conn.cursor()
 
-    agora = datetime.now()
-    mes = agora.month
-    ano = agora.year
+    agora = agora_brasil()
 
+    # 🔹 pegar dados do cartão
     cursor.execute(
         """
-        SELECT dia_fechamento
+        SELECT dia_fechamento, dia_vencimento
         FROM cartoes
         WHERE usuario_uuid = ?
           AND ativo = 1
@@ -249,49 +249,35 @@ def calcular_faturas_cartao(usuario_uuid):
 
     cartao = cursor.fetchone()
 
-    if cartao and agora.day > cartao["dia_fechamento"]:
-        mes += 1
-        if mes == 13:
-            mes = 1
-            ano += 1
+    if not cartao:
+        return {"faturas": []}
 
-    # próxima fatura
-    mes_proximo = mes + 1
-    ano_proximo = ano
+    if agora.day > cartao["dia_vencimento"]:
+        mes = agora.month + 1
+        ano = agora.year
+    else:
+        mes = agora.month
+        ano = agora.year
 
-    if mes_proximo == 13:
-        mes_proximo = 1
-        ano_proximo += 1
+    # ajuste de virada de ano
+    if mes == 13:
+        mes = 1
+        ano += 1
 
-    cursor.execute(
-        """
-        SELECT COALESCE(SUM(valor_parcela),0)
-        FROM gastos_cartao
-        WHERE usuario_uuid = ?
-        AND mes_fatura = ?
-        AND ano_fatura = ?
-        AND quitado = 0
-        AND parcelas_pagas < qtd_parcelas
+    def get_total(m, a):
+        cursor.execute(
+            """
+            SELECT COALESCE(SUM(valor_parcela),0)
+            FROM gastos_cartao
+            WHERE usuario_uuid = ?
+            AND mes_fatura = ?
+            AND ano_fatura = ?
+            AND quitado = 0
+            AND parcelas_pagas < qtd_parcelas
         """,
-        (usuario_uuid, mes, ano),
-    )
-
-    total_atual = cursor.fetchone()[0]
-
-    cursor.execute(
-        """
-        SELECT COALESCE(SUM(valor_parcela),0)
-        FROM gastos_cartao
-        WHERE usuario_uuid = ?
-        AND mes_fatura = ?
-        AND ano_fatura = ?
-        AND quitado = 0
-        AND parcelas_pagas < qtd_parcelas
-        """,
-        (usuario_uuid, mes_proximo, ano_proximo),
-    )
-
-    total_proximo = cursor.fetchone()[0]
+            (usuario_uuid, m, a),
+        )
+        return float(cursor.fetchone()[0])
 
     meses = [
         "",
@@ -309,18 +295,31 @@ def calcular_faturas_cartao(usuario_uuid):
         "Dezembro",
     ]
 
-    conn.close()
+    faturas = []
 
-    return {
-        "total_atual": float(total_atual),
-        "total_proximo": float(total_proximo),
-        "label_atual": meses[mes],
-        "label_proximo": meses[mes_proximo],
-    }
+    for i in range(3):
+        m = mes + i
+        a = ano
+
+        if m > 12:
+            m -= 12
+            a += 1
+
+        faturas.append({
+            "label": meses[m],
+            "total": get_total(m, a)
+        })
+
+    conn.close()
+    total_atual = faturas[0]["total"] if len(faturas) > 0 else 0
+    total_proximo = faturas[1]["total"] if len(faturas) > 1 else 0
+    return {"faturas": faturas, 
+            "total_atual": total_atual,
+            "total_proximo": total_proximo}
 
 
 # ================= ATUALIZAR PARCELAS CARTÃO =================
-def atualizar_parcelas(gasto, cursor):
+def atualizar_parcelas(gasto, cursor, dia_vencimento):
 
     if not gasto["qtd_parcelas"]:
         return
@@ -330,41 +329,30 @@ def atualizar_parcelas(gasto, cursor):
 
     hoje = date.today()
 
-    if not gasto["ultima_atualizacao"]:
-        cursor.execute(
-            """
-            UPDATE gastos_cartao
-            SET ultima_atualizacao = ?
-            WHERE id = ?
-        """,
-            (hoje, gasto["id"]),
-        )
+    # 🔥 só atualiza no dia do vencimento
+    if hoje.day != dia_vencimento:
         return
 
-    ultima = date.fromisoformat(gasto["ultima_atualizacao"])
+    # 🔥 evita atualizar duas vezes no mesmo mês
+    if gasto["ultima_atualizacao"]:
+        ultima = date.fromisoformat(gasto["ultima_atualizacao"])
+        if ultima.month == hoje.month and ultima.year == hoje.year:
+            return
 
-    meses_passados = (hoje.year - ultima.year) * 12 + (hoje.month - ultima.month)
-
-    # evita atualização repetida no mesmo mês
-    if meses_passados <= 0:
-        return
-
-    novas_pag = gasto["parcelas_pagas"] + meses_passados
+    novas_pag = gasto["parcelas_pagas"] + 1
 
     quitado = 0
     if novas_pag >= gasto["qtd_parcelas"]:
         novas_pag = gasto["qtd_parcelas"]
         quitado = 1
 
-    # só atualiza se realmente mudou
-    if novas_pag != gasto["parcelas_pagas"]:
-        cursor.execute(
-            """
+    cursor.execute(
+        """
         UPDATE gastos_cartao
         SET parcelas_pagas = ?,
             quitado = ?,
             ultima_atualizacao = ?
         WHERE id = ?
         """,
-            (novas_pag, quitado, hoje, gasto["id"]),
-        )
+        (novas_pag, quitado, hoje, gasto["id"]),
+    )

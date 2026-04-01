@@ -88,175 +88,152 @@ Chart.register(centerTextPlugin);
 GRÁFICO DE LINHA
 ============================================================ */
 
-function criarGraficoLinha(){
+function criarGraficoLinha() {
+  fetch("/grafico/usuario")
+    .then((res) => res.json())
+    .then((dados) => {
+      const canvas = document.getElementById("graficoLinha");
+      if (!canvas) return;
 
-fetch("/grafico/usuario")
-.then((res) => res.json())
-.then((dados) => {
+      new Chart(canvas, {
+        type: "line",
 
-const canvas = document.getElementById("graficoLinha");
-if (!canvas) return;
+        data: {
+          labels: dados.dias,
 
-new Chart(canvas,{
-type:"line",
+          datasets: [
+            {
+              label: "Gastos",
+              data: dados.gastos,
+              borderColor: "#ef4444",
+              backgroundColor: "#ef449a2d",
+              fill: true,
+              tension: 0.3,
+              borderWidth: 3,
+              pointRadius: (ctx) => (ctx.raw > 0 ? 4 : 0),
+              pointHoverRadius: 6,
+            },
 
-data:{
-labels:dados.dias,
+            {
+              label: "Rendas",
+              data: dados.rendas,
+              borderColor: "#22c55e",
+              backgroundColor: "#22c5aa3b",
+              fill: true,
+              tension: 0.6,
+              borderWidth: 3,
+              borderDash: [7, 8],
+              pointRadius: (ctx) => (ctx.raw > 0 ? 4 : 0),
+              pointHoverRadius: 6,
+            },
+          ],
+        },
 
-datasets:[
-{
-label:"Gastos",
-data:dados.gastos,
-borderColor:"#ef4444",
-backgroundColor:"#ef449a2d",
-fill:true,
-tension:0.3,
-borderWidth:3,
-pointRadius:(ctx)=>ctx.raw>0?4:0,
-pointHoverRadius:6
-},
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
 
-{
-label:"Rendas",
-data:dados.rendas,
-borderColor:"#22c55e",
-backgroundColor:"#22c5aa3b",
-fill:true,
-tension:0.6,
-borderWidth:3,
-borderDash:[7,8],
-pointRadius:(ctx)=>ctx.raw>0?4:0,
-pointHoverRadius:6
-}
-]
-
-},
-
-options:{
-responsive:true,
-maintainAspectRatio:false,
-
-animation:{
-duration:1200,
-easing:"easeOutQuart"
-}
-
-}
-
-});
-
-});
+          animation: {
+            duration: 1200,
+            easing: "easeOutQuart",
+          },
+        },
+      });
+    });
 }
 
-const linhaObserver = new IntersectionObserver(entries => {
-
-if(entries[0].isIntersecting){
-
-criarGraficoLinha();
-linhaObserver.disconnect();
-
-}
-
+const linhaObserver = new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting) {
+    criarGraficoLinha();
+    linhaObserver.disconnect();
+  }
 });
 
 const graficoLinha = document.getElementById("graficoLinha");
 
-if(graficoLinha){
-linhaObserver.observe(graficoLinha);
+if (graficoLinha) {
+  linhaObserver.observe(graficoLinha);
 }
 
 /* ============================================================
 GRÁFICO DONUT (CATEGORIAS)
 ============================================================ */
-function criarGraficoPizza(){
+function criarGraficoPizza() {
+  fetch("/grafico/pizza")
+    .then((res) => res.json())
+    .then((dados) => {
+      const canvas = document.getElementById("graficoPizza");
+      if (!canvas) return;
 
-fetch("/grafico/pizza")
-.then((res) => res.json())
-.then((dados) => {
+      new Chart(canvas, {
+        type: "doughnut",
 
-const canvas = document.getElementById("graficoPizza");
-if (!canvas) return;
+        data: {
+          labels: dados.categorias,
 
-new Chart(canvas,{
-type:"doughnut",
+          datasets: [
+            {
+              data: dados.valores,
+              backgroundColor: gerarCores(dados.valores.length),
+              borderWidth: 1.2,
+              borderColor: "#ffffff",
+            },
+          ],
+        },
 
-data:{
-labels:dados.categorias,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
 
-datasets:[
-{
-data:dados.valores,
-backgroundColor:gerarCores(dados.valores.length),
-borderWidth:1.2,
-borderColor:"#ffffff"
-}
-]
+          animation: {
+            animateRotate: true,
+            animateScale: true,
+            duration: 1400,
+            easing: "easeOutQuart",
+          },
 
-},
+          cutout: "60%",
 
-options:{
-responsive:true,
-maintainAspectRatio:false,
+          plugins: {
+            legend: {
+              position: "top",
+              labels: {
+                usePointStyle: true,
+                pointStyle: "rectRounded",
+                padding: 12,
+                font: { size: 12 },
+              },
+            },
 
-animation:{
-animateRotate:true,
-animateScale:true,
-duration:1400,
-easing:"easeOutQuart"
-},
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  let valor = context.raw;
 
-cutout:"60%",
-
-plugins:{
-legend:{
-position:"top",
-labels:{
-usePointStyle:true,
-pointStyle:"rectRounded",
-padding:12,
-font:{size:12}
-}
-},
-
-tooltip:{
-callbacks:{
-label:function(context){
-
-let valor = context.raw;
-
-return valor.toLocaleString("pt-BR",{
-style:"currency",
-currency:"BRL"
-});
-
-}
-}
-}
-
+                  return valor.toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  });
+                },
+              },
+            },
+          },
+        },
+      });
+    });
 }
 
-}
-
-});
-
-});
-}
-
-const pizzaObserver = new IntersectionObserver(entries => {
-
-if(entries[0].isIntersecting){
-
-criarGraficoPizza();
-pizzaObserver.disconnect();
-
-}
-
+const pizzaObserver = new IntersectionObserver((entries) => {
+  if (entries[0].isIntersecting) {
+    criarGraficoPizza();
+    pizzaObserver.disconnect();
+  }
 });
 
 const graficoPizza = document.getElementById("graficoPizza");
 
-if(graficoPizza){
-pizzaObserver.observe(graficoPizza);
+if (graficoPizza) {
+  pizzaObserver.observe(graficoPizza);
 }
 /* ============================================================
 DOM READY
@@ -323,80 +300,75 @@ AJAX FORM
   });
 
   /* ============================================================
-SLIDER CARTÃO
+                          SLIDER CARTÃO
 ============================================================ */
 
   let slideAtual = 0;
-let startX = 0;
-let currentX = 0;
-let dragging = false;
+  let startX = 0;
+  let currentX = 0;
+  let dragging = false;
 
-const slider = document.querySelector(".cartao-slider");
-const slides = document.querySelector(".slides");
-const dots = document.querySelectorAll(".dot");
+  const slider = document.querySelector(".cartao-slider");
 
-if (slider) {
+  if (!slider) return;
 
-function atualizarSlider(animar=true){
+  const slides = slider.querySelector(".slides");
+  const dots = slider.querySelectorAll(".dot");
+  if (slider) {
+    atualizarSlider();
+    console.log("TOTAL SLIDES:", dots.length);
 
-if(animar){
-slides.style.transition = "transform 0.35s cubic-bezier(.22,.61,.36,1)";
-}else{
-slides.style.transition = "none";
-}
+    function atualizarSlider(animar = true) {
+      if (animar) {
+        slides.style.transition = "transform 0.35s cubic-bezier(.22,.61,.36,1)";
+      } else {
+        slides.style.transition = "none";
+      }
 
-slides.style.transform = `translateX(-${slideAtual*100}%)`;
+      slides.style.transform = `translateX(-${slideAtual * 100}%)`;
 
-dots.forEach(d=>d.classList.remove("ativo"));
-dots[slideAtual].classList.add("ativo");
+      dots.forEach((d) => d.classList.remove("ativo"));
+      dots[slideAtual].classList.add("ativo");
+    }
 
-}
+    slider.addEventListener("touchstart", (e) => {
+      startX = e.touches[0].clientX;
+      dragging = true;
+      slides.style.transition = "none";
+    });
 
-slider.addEventListener("touchstart",(e)=>{
+    slider.addEventListener("touchmove", (e) => {
+      if (!dragging) return;
 
-startX = e.touches[0].clientX;
-dragging = true;
-slides.style.transition="none";
+      currentX = e.touches[0].clientX;
 
-});
+      const diff = currentX - startX;
+      const percent = (diff / slides.offsetWidth) * 100;
 
-slider.addEventListener("touchmove",(e)=>{
+      const offset = -slideAtual * 100 + percent;
 
-if(!dragging) return;
+      slides.style.transform = `translateX(${offset}%)`;
+    });
 
-currentX = e.touches[0].clientX;
+    slider.addEventListener("touchend", () => {
+      dragging = false;
 
-const diff = currentX - startX;
-const percent = diff / slides.offsetWidth * 100;
+      const diff = currentX - startX;
 
-const offset = -slideAtual*100 + percent;
+      if (Math.abs(diff) > 50) {
+        if (diff < 0) {
+          slideAtual++;
+        } else {
+          slideAtual--;
+        }
+      }
 
-slides.style.transform = `translateX(${offset}%)`;
+      if (slideAtual < 0) slideAtual = 0;
+      const totalSlides = dots.length;
 
-});
+      if (slideAtual >= totalSlides) slideAtual = totalSlides - 1;
 
-slider.addEventListener("touchend",()=>{
-
-dragging=false;
-
-const diff = currentX - startX;
-
-if(Math.abs(diff)>50){
-
-if(diff<0){
-slideAtual++;
-}else{
-slideAtual--;
-}
-
-}
-
-if(slideAtual<0) slideAtual=0;
-if(slideAtual>1) slideAtual=1;
-
-atualizarSlider(true);
-
-});
-
-}
+      atualizarSlider(true);
+    });
+  }
 });
