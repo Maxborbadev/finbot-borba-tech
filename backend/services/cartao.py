@@ -252,9 +252,8 @@ def calcular_faturas_cartao(usuario_uuid):
     if not cartao:
         return {"faturas": []}
 
-    if agora.day > cartao["dia_vencimento"]:
+    if agora.day > cartao["dia_fechamento"]:
         mes = agora.month + 1
-        ano = agora.year
     else:
         mes = agora.month
         ano = agora.year
