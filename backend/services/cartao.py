@@ -203,14 +203,10 @@ def total_cartao_fatura_atual(usuario_uuid):
         conn.close()
         return 0.0
 
-    mes, ano = calcular_competencia_fatura(agora, cartao["dia_fechamento"])
-
-    # 🔥 manter fatura anterior até o vencimento
-    if agora.day <= cartao["dia_vencimento"]:
-        mes -= 1
-        if mes < 1:
-            mes = 12
-            ano -= 1
+    mes, ano = calcular_competencia_fatura(
+        agora,
+        cartao["dia_fechamento"]
+    )
     cursor.execute(
         """
         SELECT COALESCE(SUM(valor_parcela), 0)
