@@ -64,18 +64,19 @@ def adicionar_meses(mes, ano, quantidade):
 
 def gerar_label_fatura(mes, ano):
     meses = [
-        "Jan",
-        "Fev",
-        "Mar",
-        "Abr",
-        "Mai",
-        "Jun",
-        "Jul",
-        "Ago",
-        "Set",
-        "Out",
-        "Nov",
-        "Dez",
+        "",
+        "Janeiro",
+        "Fevereiro",
+        "Março",
+        "Abril",
+        "Maio",
+        "Junho",
+        "Julho",
+        "Agosto",
+        "Setembro",
+        "Outubro",
+        "Novembro",
+        "Dezembro",
     ]
 
-    return f"{meses[mes-1]}/{str(ano)[-2:]}"
+    return meses[mes]

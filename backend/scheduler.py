@@ -1,5 +1,5 @@
 from db.database import get_connection
-from datetime import datetime, time, timedelta
+from datetime import date, datetime, time, timedelta
 from utils.whatsapp import enviar_whatsapp
 from utils.formatters import dinheiro
 from services.mensagens import msg_aviso_conta_vencendo
@@ -19,6 +19,7 @@ import time
 # VERIFICAR EXPIRAÇÃO
 # ===============================
 def verificar_planos_expirados():
+    conn = None
     try:
         conn = get_connection()
 
@@ -37,12 +38,14 @@ def verificar_planos_expirados():
         )
 
         conn.commit()
-        conn.close()
 
         print(f"[OK] Verificação executada em {agora}")
 
     except Exception as e:
         print(f"[ERRO] Scheduler: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 
 # ===============================
@@ -55,17 +58,19 @@ def limpar_tokens_expirados():
         conn.execute(
             """
             DELETE FROM recuperacao_senha
-            WHERE expira_em < datetime('now')
+            WHERE expira_em < datetime('now', 'localtime')
             """
         )
 
         conn.commit()
-        conn.close()
 
         print("[OK] Tokens expirados removidos ")
 
     except Exception as e:
         print(f"[ERRO] Limpeza tokens: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 
 # ===============================
@@ -88,12 +93,14 @@ def ativar_premium(usuario_id):
         )
 
         conn.commit()
-        conn.close()
 
         print(f"[OK] Premium ativado para usuário {usuario_id}")
 
     except Exception as e:
         print(f"[ERRO] Ativar premium: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 
 # ===============================
@@ -103,7 +110,7 @@ def verificar_contas_vencendo():
     try:
         conn = get_connection()
 
-        hoje = datetime.now().day
+        hoje_data = date.today()
 
         contas = conn.execute(
             """
@@ -121,12 +128,25 @@ def verificar_contas_vencendo():
             """
         ).fetchall()
 
+        agora = datetime.now()
+        hora_atual = agora.hour
+
         for conta in contas:
             dia_venc = conta["dia_vencimento"]
 
-            dias_para_vencer = dia_venc - hoje
+            vencimento_data = date(hoje_data.year, hoje_data.month, dia_venc)
 
-            if dias_para_vencer == 4 or dias_para_vencer == 0:
+            if vencimento_data < hoje_data:
+                if hoje_data.month == 12:
+                    vencimento_data = date(hoje_data.year + 1, 1, dia_venc)
+                else:
+                    vencimento_data = date(
+                        hoje_data.year, hoje_data.month + 1, dia_venc
+                    )
+
+            dias_para_vencer = (vencimento_data - hoje_data).days
+
+            if dias_para_vencer in (4, 0) and hora_atual == 15:
 
                 mensagem = msg_aviso_conta_vencendo(
                     conta["descricao"], dinheiro(conta["valor"]), dia_venc
@@ -134,10 +154,11 @@ def verificar_contas_vencendo():
 
                 enviar_whatsapp(conta["whatsapp_id"], mensagem)
 
-        conn.close()
-
     except Exception as e:
         print(f"[ERRO] Verificar contas: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 
 # ===============================
@@ -147,7 +168,7 @@ def verificar_cartoes_vencendo():
     try:
         conn = get_connection()
 
-        hoje = datetime.now().day
+        hoje_data = date.today()
 
         cartoes = conn.execute(
             """
@@ -166,13 +187,26 @@ def verificar_cartoes_vencendo():
 
         cursor = conn.cursor()  # ✅ cria uma vez só
 
+        agora = datetime.now()
+        hora_atual = agora.hour
+
         for cartao in cartoes:
 
             dia_venc = cartao["dia_vencimento"]
             usuario_uuid = cartao["usuario_uuid"]
             valor_fatura = total_cartao_fatura_atual(usuario_uuid)
 
-            dias_para_vencer = dia_venc - hoje
+            vencimento_data = date(hoje_data.year, hoje_data.month, dia_venc)
+
+            if vencimento_data < hoje_data:
+                if hoje_data.month == 12:
+                    vencimento_data = date(hoje_data.year + 1, 1, dia_venc)
+                else:
+                    vencimento_data = date(
+                        hoje_data.year, hoje_data.month + 1, dia_venc
+                    )
+
+            dias_para_vencer = (vencimento_data - hoje_data).days
 
             categorias = cursor.execute(
                 """
@@ -187,22 +221,23 @@ def verificar_cartoes_vencendo():
                 (usuario_uuid,),
             ).fetchall()
 
-            if dias_para_vencer == 4 or dias_para_vencer == 0:
+            if dias_para_vencer in (4, 0) and hora_atual == 15:
 
                 mensagem = msg_fatura_cartao_vencendo(
                     cartao["nome"],
                     dinheiro(valor_fatura),
                     dia_venc,
                     dias_para_vencer,
-                    categorias
+                    categorias,
                 )
 
                 enviar_whatsapp(cartao["whatsapp_id"], mensagem)
 
-        conn.close()
-
     except Exception as e:
         print(f"[ERRO] Verificar cartões: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 
 # ===============================
@@ -236,12 +271,14 @@ def enviar_relatorio_diario():
 
             time.sleep(0.3)
 
-        conn.close()
-
         print("[OK] Relatório diário enviado")
 
     except Exception as e:
         print(f"[ERRO] Relatório diário: {e}")
+
+    finally:
+        if conn:
+            conn.close()
 
 
 # ===============================
@@ -275,12 +312,13 @@ def enviar_relatorio_semanal():
 
             time.sleep(0.3)
 
-        conn.close()
-
         print("[OK] Relatório semanal enviado")
 
     except Exception as e:
         print(f"[ERRO] Relatório semanal: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 
 # ===============================

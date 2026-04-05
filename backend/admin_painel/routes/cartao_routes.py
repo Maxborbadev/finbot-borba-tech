@@ -1,17 +1,36 @@
-from flask import Blueprint, render_template, request, redirect, session, url_for, jsonify
-#========================================================
+from flask import (
+    Blueprint,
+    render_template,
+    request,
+    redirect,
+    session,
+    url_for,
+    jsonify,
+)
+
+# ========================================================
 from admin_painel.decorators import usuario_required
 from admin_painel.extensions import csrf
-#========================================================
+
+# ========================================================
 from db.database import get_connection
 from services.cartao import calcular_faturas_cartao
 from services.cartao import atualizar_parcelas
-#========================================================
+from services.cartao import total_cartao_fatura_atual
+from utils.fatura import calcular_competencia_fatura, gerar_label_fatura
+from datetime import datetime
+
+# ========================================================
 cartao_bp = Blueprint("cartao", __name__)
-#========================================================
+
+
+# ========================================================
 def get_db():
     return get_connection()
-#========================================================
+
+
+# ========================================================
+
 
 @cartao_bp.route("/cartoes")
 @usuario_required
@@ -46,17 +65,19 @@ def cartoes_painel():
     ).fetchall()
 
     cursor = db.cursor()
-    cursor.execute("""
+    cursor.execute(
+        """
     SELECT dia_vencimento
     FROM cartoes
     WHERE usuario_uuid = ?
     AND ativo = 1
     LIMIT 1
-    """, (session["usuario_uuid"],))
+    """,
+        (session["usuario_uuid"],),
+    )
 
     cartao = cursor.fetchone()
     dia_vencimento = cartao["dia_vencimento"] if cartao else None
-        
 
     for g in todos:
         if dia_vencimento:
@@ -103,6 +124,25 @@ def cartoes_painel():
 
     dia_vencimento = cartao_info["dia_vencimento"] if cartao_info else ""
 
+    # 🔥 calcular fatura correta pro topo (ignora vencimento)
+    agora = datetime.now()
+
+    cartao_info = db.execute(
+        """
+        SELECT dia_fechamento
+        FROM cartoes
+        WHERE usuario_uuid = ?
+        AND ativo = 1
+        LIMIT 1
+        """,
+        (session["usuario_uuid"],),
+    ).fetchone()
+
+    mes, ano = calcular_competencia_fatura(agora, cartao_info["dia_fechamento"])
+
+    fatura_label_topo = gerar_label_fatura(mes, ano)
+    total_topo = total_cartao_fatura_atual(session["usuario_uuid"])
+
     # ======================================================
     # 🔹 RENDERIZA
     # ======================================================
@@ -112,9 +152,9 @@ def cartoes_painel():
         usuario=usuario,
         cartoes=cartoes,
         gastos_cartao=gastos,
-        total_cartao_atual=faturas["total_atual"],
+        total_cartao_atual=total_topo,
+        fatura_label_atual=fatura_label_topo,
         total_cartao_proximo=faturas["total_proximo"],
-        fatura_label_atual=faturas["faturas"][0]["label"],
         fatura_label_proximo=faturas["faturas"][1]["label"],
         dia_vencimento=dia_vencimento,
     )
