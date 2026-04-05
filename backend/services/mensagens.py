@@ -438,14 +438,53 @@ def msg_aviso_conta_vencendo(descricao, valor, dia_venc):
 # ============================================
 # AVISO DE CARTÃO VENCENDO (AUTO)
 # ============================================
-def msg_fatura_cartao_vencendo(nome_cartao, valor_fatura, dia_venc):
-    return f"""💳 Fatura do cartão próxima do vencimento
+def gerar_barra(percentual):
+    blocos = int(percentual / 10) if percentual < 100 else 10
+    return "█" * blocos + "░" * (10 - blocos)
 
-💳 Cartão: {nome_cartao}
-💰 Fatura atual: R$ {valor_fatura}
+
+def msg_fatura_cartao_vencendo(
+    nome_cartao, valor_fatura, dia_venc, dias_restantes, categorias
+):
+
+    # aviso de vencimento
+    if dias_restantes == 0:
+        aviso = "🚨 *Vence HOJE!*"
+    else:
+        aviso = f"⏳ Vence em {dias_restantes} dias"
+
+    # resumo por categoria
+    if not categorias:
+        resumo = "📊 Sem gastos por categoria este mês."
+    else:
+        total_geral = sum([c[1] for c in categorias])
+
+        if total_geral == 0:
+            resumo = "📊 Sem gastos por categoria este mês."
+        else:
+            resumo = "📊 *Seus gastos por categoria:*\n\n"
+
+            for c in categorias:
+                nome_cat = c[0]
+                total = c[1]
+
+                porcentagem = (total / total_geral) * 100
+                barra = gerar_barra(porcentagem)
+
+                resumo += f"{nome_cat}\n{barra} {porcentagem:.0f}% (R$ {total:.2f})\n\n"
+
+            resumo += f"🏆 Maior gasto: *{categorias[0][0]}*\n"
+
+    return f"""💳 *Fatura do cartão {nome_cartao}*
+
+💰 Fatura atual: {valor_fatura}
 📅 Vencimento: dia {dia_venc}
 
-Evite juros pagando até o vencimento 😉
+{aviso}
+
+{resumo}
+
+⚠️ Evite juros pagando até o vencimento 😉
 """
 
 

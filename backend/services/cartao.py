@@ -3,6 +3,7 @@ from datetime import date, datetime
 import uuid
 from services.categoria_auto import detectar_categoria
 from utils.datetime_utils import agora_brasil
+from utils.fatura import calcular_competencia_fatura, adicionar_meses
 
 
 # ================= REGISTRAR GASTOS NO CARTÃO =================
@@ -47,23 +48,17 @@ def registrar_gasto_cartao(
     # 🔥 REGRA CORRETA (MESMA DA FATURA)
     # ======================================================
 
-    mes_base, ano_base = calcular_mes_fatura_base(hoje, dia_fechamento, dia_vencimento)
+    mes_base, ano_base = calcular_competencia_fatura(hoje, dia_fechamento)
 
     # ======================================================
     # 🔹 salvar parcelas
     # ======================================================
 
-    for i in range(parcelas_pagas, parcelas):
+    for i in range(parcelas):
 
         parcela_numero = i + 1
 
-        mes_fatura = mes_base + (i - parcelas_pagas)
-        ano_fatura = ano_base
-
-        # 🔹 ajuste de virada de ano
-        while mes_fatura > 12:
-            mes_fatura -= 12
-            ano_fatura += 1
+        mes_fatura, ano_fatura = adicionar_meses(mes_base, ano_base, i)
 
         cursor.execute(
             """
@@ -123,14 +118,18 @@ def total_gastos_cartao_periodo(usuario_uuid, inicio, fim):
         conn = get_connection()
         cursor = conn.cursor()
 
+        mes = inicio.month
+        ano = inicio.year
+
         cursor.execute(
             """
             SELECT COALESCE(SUM(valor_parcela), 0)
             FROM gastos_cartao
             WHERE usuario_uuid = ?
-            AND strftime('%Y-%m', data_compra) = strftime('%Y-%m', 'now')
+            AND mes_fatura = ?
+            AND ano_fatura = ?
         """,
-            (usuario_uuid,),
+            (usuario_uuid, mes, ano),
         )
 
         total = cursor.fetchone()[0]
@@ -204,10 +203,14 @@ def total_cartao_fatura_atual(usuario_uuid):
         conn.close()
         return 0.0
 
-    mes, ano = calcular_mes_fatura_base(
-        agora, cartao["dia_fechamento"], cartao["dia_vencimento"]
-    )
+    mes, ano = calcular_competencia_fatura(agora, cartao["dia_fechamento"])
 
+    # 🔥 manter fatura anterior até o vencimento
+    if agora.day <= cartao["dia_vencimento"]:
+        mes -= 1
+        if mes < 1:
+            mes = 12
+            ano -= 1
     cursor.execute(
         """
         SELECT COALESCE(SUM(valor_parcela), 0)
@@ -263,7 +266,14 @@ def calcular_faturas_cartao(usuario_uuid):
     # 🔥 REGRA PRINCIPAL (PADRÃO CARTÃO REAL)
     # ======================================================
 
-    mes, ano = calcular_mes_fatura_base(agora, dia_fechamento, dia_vencimento)
+    mes, ano = calcular_competencia_fatura(agora, dia_fechamento)
+
+    # 🔥 ajuste: manter fatura anterior até o vencimento
+    if agora.day <= dia_vencimento:
+        mes -= 1
+        if mes < 1:
+            mes = 12
+            ano -= 1
 
     # ======================================================
     # 🔹 Função interna para somar fatura
@@ -370,27 +380,3 @@ def atualizar_parcelas(gasto, cursor, dia_vencimento):
         """,
         (novas_pag, quitado, hoje, gasto["id"]),
     )
-
-
-# ================== CALCULAR MES FATURAS =========================
-def calcular_mes_fatura_base(data, dia_fechamento, dia_vencimento):
-    mes = data.month
-    ano = data.year
-
-    # 🔥 se já passou fechamento → próxima fatura
-    if data.day > dia_fechamento:
-        mes += 1
-        if mes > 12:
-            mes = 1
-            ano += 1
-
-    # 🔥 se ainda está antes do vencimento E não passou fechamento anterior
-    elif data.day <= dia_vencimento:
-        # só volta se ainda estiver no ciclo anterior
-        if dia_vencimento < dia_fechamento:
-            mes -= 1
-            if mes < 1:
-                mes = 12
-                ano -= 1
-
-    return mes, ano

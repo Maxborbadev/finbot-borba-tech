@@ -164,6 +164,8 @@ def verificar_cartoes_vencendo():
             """
         ).fetchall()
 
+        cursor = conn.cursor()  # ✅ cria uma vez só
+
         for cartao in cartoes:
 
             dia_venc = cartao["dia_vencimento"]
@@ -172,10 +174,27 @@ def verificar_cartoes_vencendo():
 
             dias_para_vencer = dia_venc - hoje
 
+            categorias = cursor.execute(
+                """
+                SELECT categoria, SUM(valor) as total
+                FROM gastos_cartao
+                WHERE usuario_uuid = ?
+                AND strftime('%Y-%m', data) = strftime('%Y-%m', 'now')
+                GROUP BY categoria
+                ORDER BY total DESC
+                LIMIT 5
+                """,
+                (usuario_uuid,),
+            ).fetchall()
+
             if dias_para_vencer == 4 or dias_para_vencer == 0:
 
                 mensagem = msg_fatura_cartao_vencendo(
-                    cartao["nome"], dinheiro(valor_fatura), dia_venc
+                    cartao["nome"],
+                    dinheiro(valor_fatura),
+                    dia_venc,
+                    dias_para_vencer,
+                    categorias
                 )
 
                 enviar_whatsapp(cartao["whatsapp_id"], mensagem)
@@ -194,14 +213,14 @@ def enviar_relatorio_diario():
         conn = get_connection()
 
         usuarios = conn.execute(
-        """
+            """
         SELECT uuid, whatsapp_id
         FROM usuarios
         WHERE status='ativo'
         AND estado='ativo'
         AND plano = 'PREMIUM'
         """
-    ).fetchall()
+        ).fetchall()
 
         for usuario in usuarios:
 
@@ -233,14 +252,14 @@ def enviar_relatorio_semanal():
         conn = get_connection()
 
         usuarios = conn.execute(
-        """
+            """
         SELECT uuid, whatsapp_id
         FROM usuarios
         WHERE status='ativo'
         AND estado='ativo'
         AND plano = 'PREMIUM'
         """
-    ).fetchall()
+        ).fetchall()
 
         for usuario in usuarios:
 
